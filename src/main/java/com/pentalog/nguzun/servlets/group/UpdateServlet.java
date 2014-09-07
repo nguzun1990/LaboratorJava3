@@ -13,9 +13,11 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 
 import com.pentalog.nguzun.dao.GroupDAO;
+import com.pentalog.nguzun.dao.RoleDAO;
 import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
 import com.pentalog.nguzun.factory.DaoFactory;
 import com.pentalog.nguzun.vo.Group;
+import com.pentalog.nguzun.vo.Role;
 
 /**
  * Servlet implementation class update
@@ -58,13 +60,15 @@ public class UpdateServlet extends HttpServlet {
 		int roleId = Integer.parseInt(request.getParameter("role_id"));
 		long id = 0;
 		GroupDAO dao = DaoFactory.buildObject(GroupDAO.class);
+		RoleDAO roleDao = DaoFactory.buildObject(RoleDAO.class);
 		JSONObject result = new JSONObject();
 		try {
+			Role role = roleDao.retrive(roleId);
 			if (request.getParameter("id").equals("")) {
 				group = new Group.Builder()
 	        		.name(name)
 					.description(description)
-					.idRole(roleId)
+					.role(role)
 					.build(); 
 				id = dao.create(group);
 				if (id != 0) {
@@ -76,7 +80,7 @@ public class UpdateServlet extends HttpServlet {
 				if (group != null) {
 					group.setName(name);
 					group.setDescription(description);
-					group.setIdRole(roleId);
+					group.setRole(role);
 					success = dao.update(group);
 				}		
 			}

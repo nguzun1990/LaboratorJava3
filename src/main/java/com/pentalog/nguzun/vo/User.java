@@ -23,9 +23,6 @@ public class User extends BaseValueObject {
 	@Column(name = "password")
     private String password;
 	
-//	@Column(name = "id_group")
-//    private int idGroup;
-	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_group", nullable = false)
     private Group group;
@@ -79,7 +76,6 @@ public class User extends BaseValueObject {
     public static class Builder extends BaseValueObject.Builder<Builder>{
     	private String login;
     	private String password;
-//    	private int idGroup;
     	private Group group;
 
         public Builder login(String login) {
@@ -91,11 +87,6 @@ public class User extends BaseValueObject {
         	this.password = password;
             return this;
         }
-        
-//        public Builder idGroup(int idGroup) {
-//        	this.idGroup = idGroup;
-//            return this;
-//        }
         
         public Builder group(Group group) {
         	this.group = group;
@@ -111,7 +102,6 @@ public class User extends BaseValueObject {
     	super(builder);
     	login = builder.login;
     	password = builder.password;
-//    	idGroup = builder.idGroup;
     	group = builder.group;
     }
 

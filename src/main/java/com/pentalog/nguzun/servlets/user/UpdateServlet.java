@@ -64,7 +64,7 @@ public class UpdateServlet extends HttpServlet {
 		GroupDAO groupDao = DaoFactory.buildObject(GroupDAO.class);
 		JSONObject result = new JSONObject();
 		try {
-			Group group = groupDao.retrive(id);
+			Group group = groupDao.retrive(groupId);
 			if (request.getParameter("id").equals("")) {
 				user = new User.Builder()
 	        		.name(name)

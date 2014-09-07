@@ -59,7 +59,7 @@ public class GetServlet extends HttpServlet {
 				result.put("id", group.getId());
 				result.put("name", group.getName());
 				result.put("description", group.getDescription());
-				result.put("role_id", group.getIdRole());	        
+				result.put("role_id", group.getRole().getId());	        
 			} else {
 				result.put("success", false);
 			}		

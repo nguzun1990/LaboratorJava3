@@ -8,8 +8,12 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.pentalog.nguzun.dao.RoleDAO;
+import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
+import com.pentalog.nguzun.factory.DaoFactory;
 import com.pentalog.nguzun.file.csv.BaseCsvProcessor;
 import com.pentalog.nguzun.vo.Group;
+import com.pentalog.nguzun.vo.Role;
 
 /**
  *
@@ -21,7 +25,10 @@ public class GroupXmlProcessor extends BaseXmlProcessor<Group> {
 	
 	private static GroupXmlProcessor instance;
 
+	private RoleDAO roleDAO;
+	
     private GroupXmlProcessor() {
+    	roleDAO  = DaoFactory.buildObject(RoleDAO.class);
     }
 
     public static GroupXmlProcessor getInstance() {
@@ -42,11 +49,17 @@ public class GroupXmlProcessor extends BaseXmlProcessor<Group> {
 			roleId = getIntProperty("roleId", element);
 	        name = getStringProperty("name", element);
 	        description = getStringProperty("description", element);
+	        Role role = null;
+			try {
+				role = roleDAO.retrive(roleId);
+			} catch (ExceptionDAO e) {
+				log.error("GroupCsvProcessor createEntity: an error dao was occured: " + e.getMessage(), e);
+			}
 			group = new Group.Builder()
 						.id(id)
 						.name(name)
 						.description(description)
-						.idRole(roleId)
+						.role(role)
 						.build(); 
 		}
 		
@@ -62,7 +75,7 @@ public class GroupXmlProcessor extends BaseXmlProcessor<Group> {
 			.append("\n\t<id>" + group.getId() + "</id>")
 	        .append("\n\t<name>" + group.getName() + "</name>")
 	        .append("\n\t<description>" + group.getDescription() + "</description>")
-	        .append("\n\t<roleId>" + group.getIdRole() + "</roleId>")
+	        .append("\n\t<roleId>" + group.getRole().getId() + "</roleId>")
 	        .append("\n</group>")
 	        .append('\n');
 

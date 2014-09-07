@@ -67,7 +67,6 @@ public class GroupDAO implements BaseDAO<Group> {
             		.id(resultSet.getInt("id"))
             		.name(resultSet.getString("name"))
 					.description(resultSet.getString("description"))
-					.idRole(resultSet.getInt("id_role"))
 					.role(role)
 					.build();
             }
@@ -94,7 +93,6 @@ public class GroupDAO implements BaseDAO<Group> {
 	        		.id(resultSet.getInt("id"))
 	        		.name(resultSet.getString("name"))
 					.description(resultSet.getString("description"))
-					.idRole(resultSet.getInt("id_role"))
 					.role(role)
 					.build();
             	groupList.add(group);
@@ -131,7 +129,7 @@ public class GroupDAO implements BaseDAO<Group> {
             updateGroup = (PreparedStatement) this.connection.prepareStatement(statement);
             updateGroup.setString(1, group.getName());
             updateGroup.setString(2, group.getDescription());
-            updateGroup.setInt(3, group.getIdRole());
+            updateGroup.setInt(3, group.getRole().getId());
             updateGroup.setInt(4, group.getId());
             int result = updateGroup.executeUpdate();
             if (result != 0) {
@@ -153,7 +151,7 @@ public class GroupDAO implements BaseDAO<Group> {
             insertGroup = (PreparedStatement) this.connection.prepareStatement(statement);
             insertGroup.setString(1, group.getName());
             insertGroup.setString(2, group.getDescription());
-            insertGroup.setInt(3, group.getIdRole());
+            insertGroup.setInt(3, group.getRole().getId());
             int result = insertGroup.executeUpdate();
             if (result != 0) {
                 lastInsertID = insertGroup.getLastInsertID();

@@ -1,7 +1,11 @@
 package com.pentalog.nguzun.file.csv;
 
+import com.pentalog.nguzun.dao.RoleDAO;
+import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
+import com.pentalog.nguzun.factory.DaoFactory;
 import com.pentalog.nguzun.record.GroupRecord;
 import com.pentalog.nguzun.vo.Group;
+import com.pentalog.nguzun.vo.Role;
 
 /**
  *
@@ -12,8 +16,12 @@ public class GroupCsvProcessor extends BaseCsvProcessor<Group> {
 
 	private static GroupCsvProcessor instance;
 
+	private RoleDAO roleDAO;
+	
 	private GroupCsvProcessor() {
+		roleDAO  = DaoFactory.buildObject(RoleDAO.class);
 	}
+	
 
 	public static GroupCsvProcessor getInstance() {
 		if (instance == null) {
@@ -33,8 +41,18 @@ public class GroupCsvProcessor extends BaseCsvProcessor<Group> {
 			description = GroupRecord.getDescription(record);
 			id = GroupRecord.getId(record);
 			roleId = GroupRecord.getRoleId(record);
-			group = new Group.Builder().id(id).name(name)
-					.description(description).idRole(roleId).build();
+			Role role = null;
+			try {
+				role = roleDAO.retrive(roleId);
+			} catch (ExceptionDAO e) {
+				log.error("GroupCsvProcessor createEntity: an error dao was occured: " + e.getMessage(), e);
+			}
+			group = new Group.Builder()
+					.id(id)
+					.name(name)
+					.description(description)
+					.role(role)
+					.build();
 		}
 
 		return group;
@@ -46,7 +64,7 @@ public class GroupCsvProcessor extends BaseCsvProcessor<Group> {
 		strBuilder.append(group.getId()).append(cvsSplitBy)
 				.append(group.getName()).append(cvsSplitBy)
 				.append(group.getDescription()).append(cvsSplitBy)
-				.append(group.getIdRole()).append('\n');
+				.append(group.getRole().getId()).append('\n');
 
 		return strBuilder.toString();
 	}

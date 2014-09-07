@@ -1,5 +1,12 @@
 package com.pentalog.nguzun.vo;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+
 
 /**
  *
@@ -7,21 +14,15 @@ package com.pentalog.nguzun.vo;
  */
 public class Role extends BaseValueObject {
 
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
+	private Set<Group> groups = new HashSet<Group>(0);
+	
+	@Column(name = "description")
     private String description;
 
     public Role() {
     }
 
-//    public Role(String name, String description) {
-//        this.setName(name);
-//        this.setDescription(description);
-//    }
-//
-//    public Role(int id, String name, String description) {
-//        this.setName(name);
-//        this.setDescription(description);
-//        this.setId(id);
-//    }
 
     /**
      * @return the description
