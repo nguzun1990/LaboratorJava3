@@ -12,6 +12,7 @@ import org.junit.runners.MethodSorters;
 
 import com.pentalog.nguzun.factory.FileProcessorFactory;
 import com.pentalog.nguzun.file.csv.UserCsvProcessor;
+import com.pentalog.nguzun.vo.Group;
 import com.pentalog.nguzun.vo.User;
 
 /**
@@ -31,7 +32,10 @@ public class UserCSVTest {
 		expectedUser.setName("Nicu Guzun");;
 		expectedUser.setLogin("nicubalti");
 		expectedUser.setPassword("pass_word");
-		expectedUser.setIdGroup(10);
+		
+		Group expectedGroup = new Group();
+		expectedGroup.setId(10);
+		expectedUser.setGroup(expectedGroup);
 		assertEquals(expectedUser, actualUser);		
     }
 	
@@ -43,7 +47,10 @@ public class UserCSVTest {
 		user.setName("Nicu Guzun");;
 		user.setLogin("nicubalti");
 		user.setPassword("pass_word");
-		user.setIdGroup(10);
+		
+		Group group = new Group();
+		group.setId(10);
+		user.setGroup(group);
 		String actualString = csv.createStringForEntity(user, ",");
 		assertEquals("5,Nicu Guzun,nicubalti,pass_word,10\n", actualString);
     }
@@ -56,7 +63,10 @@ public class UserCSVTest {
 		user.setName("Nicu Guzun");;
 		user.setLogin("nicubalti");
 		user.setPassword("pass_word");
-		user.setIdGroup(10);
+		
+		Group group = new Group();
+		group.setId(10);
+		user.setGroup(group);
 		csv.writeEntityToFile(user, "testUserFile.csv");
 		Collection<User> expectedList = new ArrayList<User>();
 		expectedList.add(user);
@@ -82,14 +92,18 @@ public class UserCSVTest {
 		user.setName("Nicu Guzun");
 		user.setLogin("nicubalti_username");
 		user.setPassword("pass_word_1");
-		user.setIdGroup(3);
+		Group group = new Group();
+		group.setId(3);
+		user.setGroup(group);
 		expectedList.add(user);		
 		user = new User();
 		user.setId(8);
 		user.setName("Vasile Cazacu");
 		user.setLogin("vcazacu_username");
 		user.setPassword("pass_word_2");
-		user.setIdGroup(5);
+		group = new Group();
+		group.setId(8);
+		user.setGroup(group);
 		expectedList.add(user);
 		csv.writeEntitiesToFile(expectedList, "testUserFile.csv");		
 		
