@@ -14,6 +14,11 @@ import com.pentalog.nguzun.factory.DaoFactory;
 import com.pentalog.nguzun.vo.Group;
 import com.pentalog.nguzun.vo.Role;
 
+import org.hibernate.HibernateException; 
+import org.hibernate.Session; 
+import org.hibernate.Transaction;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 import org.apache.log4j.Logger;
 
 /**
@@ -39,10 +44,17 @@ public class GroupDAO implements BaseDAO<Group> {
     private static final Logger log = Logger.getLogger(GroupDAO.class.getName());
     private static GroupDAO instance;
     private RoleDAO roleDAO;
+    private static SessionFactory factory; 
     
     private GroupDAO() {
-        connection = ConnectionDB.getInstance();
-        roleDAO  = DaoFactory.buildObject(RoleDAO.class);
+        connection = ConnectionDB.getInstance();//TODO revie if needed
+        roleDAO  = DaoFactory.buildObject(RoleDAO.class);//TODO revie if needed
+        try{
+            factory = new Configuration().configure().buildSessionFactory();
+         }catch (Throwable ex) { 
+            System.err.println("Failed to create sessionFactory object. " + ex);
+            throw new ExceptionInInitializerError(ex); 
+         }
     }
 
     public static GroupDAO getInstance() {
@@ -123,7 +135,7 @@ public class GroupDAO implements BaseDAO<Group> {
 
     //TODO gandestete la o metoda ca sa nu faci update daca nu e nevoie NotDone
     public boolean update(Group group) throws ExceptionDAO {
-        try {
+    	try {
             PreparedStatement updateGroup = null;
             String statement = UPDATE_QUERY;
             updateGroup = (PreparedStatement) this.connection.prepareStatement(statement);
@@ -144,24 +156,39 @@ public class GroupDAO implements BaseDAO<Group> {
 
 
     public long create(Group group) throws ExceptionDAO {
-        long lastInsertID = 0;
-        try {
-            PreparedStatement insertGroup = null;
-            String statement = INSERT_QUERY;
-            insertGroup = (PreparedStatement) this.connection.prepareStatement(statement);
-            insertGroup.setString(1, group.getName());
-            insertGroup.setString(2, group.getDescription());
-            insertGroup.setInt(3, group.getRole().getId());
-            int result = insertGroup.executeUpdate();
-            if (result != 0) {
-                lastInsertID = insertGroup.getLastInsertID();
-            }
-        } catch (SQLException e) {
-            log.error(CREATE_GROUP_ERROR_MSG);
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+    	Session session = factory.openSession();
+        Transaction tx = null;
+        Integer groupID = null;
+        try{
+           tx = session.beginTransaction();
+           groupID = (Integer) session.save(group); 
+           tx.commit();
+        }catch (HibernateException e) {
+           if (tx!=null) tx.rollback();
+           e.printStackTrace(); 
+        }finally {
+           session.close(); 
         }
-
-        return lastInsertID;
+        return groupID;
+    	
+//        long lastInsertID = 0;
+//        try {
+//            PreparedStatement insertGroup = null;
+//            String statement = INSERT_QUERY;
+//            insertGroup = (PreparedStatement) this.connection.prepareStatement(statement);
+//            insertGroup.setString(1, group.getName());
+//            insertGroup.setString(2, group.getDescription());
+//            insertGroup.setInt(3, group.getRole().getId());
+//            int result = insertGroup.executeUpdate();
+//            if (result != 0) {
+//                lastInsertID = insertGroup.getLastInsertID();
+//            }
+//        } catch (SQLException e) {
+//            log.error(CREATE_GROUP_ERROR_MSG);
+//            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+//        }
+//
+//        return lastInsertID;
     }
 
 }

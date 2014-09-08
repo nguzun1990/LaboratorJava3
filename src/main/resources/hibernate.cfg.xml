@@ -16,6 +16,7 @@
 <!--           <mapping resource="Employee.hbm.xml"/> -->
         <mapping class="com.pentalog.nguzun.vo.User"></mapping>
         <mapping class="com.pentalog.nguzun.vo.Group"></mapping>
+        <mapping class="com.pentalog.nguzun.vo.Role"></mapping>
   
     </session-factory>  
 </hibernate-configuration>  
