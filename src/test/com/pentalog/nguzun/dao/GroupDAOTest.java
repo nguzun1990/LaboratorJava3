@@ -49,27 +49,31 @@ public class GroupDAOTest {
         System.out.println("Idul role adaugat " + id);
         groupIds.add(id);
 
-//        role = new Role.Builder()
-//			.name("role 2")
-//			.description("description 2")
-//			.build(); 
-//        roleIds.add(id);
-//        
-//        group = new Group.Builder()
-//			.name("Grupa 2")
-//			.description("Description group 2")
-//			.role(role)
-//			.build();
-//        id = groupDAO.create(group);
-//        groupIds.add(id);
+        role = new Role.Builder()
+			.name("role 2")
+			.description("description 2")
+			.build(); 
+        roleIds.add(id);
+        
+        group = new Group.Builder()
+			.name("Grupa 2")
+			.description("Description group 2")
+			.role(role)
+			.build();
+        id = groupDAO.create(group);
+        groupIds.add(id);
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
-        GroupDAO groupDAO = DaoFactory.buildObject(GroupDAO.class);
-        for (Group group : groupDAO.retrive()) {
-//            groupDAO.delete(group.getId());
-        }
+    	GroupDAO groupDAO = DaoFactory.buildObject(GroupDAO.class);
+    	for (Long groupId : groupIds) {
+    		groupDAO.delete(groupId);
+    	}
+    	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
+    	for (Long roleId : roleIds) {
+    		roleDAO.delete(roleId);
+    	}
     }
 
 	@Test

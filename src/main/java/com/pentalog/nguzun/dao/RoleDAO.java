@@ -25,7 +25,7 @@ import org.hibernate.cfg.Configuration;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * 
  * @author Guzun
  */
 public class RoleDAO implements BaseDAO<Role> {
@@ -65,67 +65,129 @@ public class RoleDAO implements BaseDAO<Role> {
 	}
 
 	public Role retrive(long id) throws ExceptionDAO {
-		Role role = null;
+		Boolean result = false;
+		Role entity = null;
+		Session session = factory.openSession();
+		Transaction tx = null;
 		try {
-			PreparedStatement selectRole = null;
-			String statement = SELECT_SINGLE_QUERY;
-			selectRole = (PreparedStatement) this.connection
-					.prepareStatement(statement);
-			selectRole.setLong(1, id);
-			ResultSet resultSet = (ResultSet) selectRole.executeQuery();
-			if (resultSet.next()) {
-				role = new Role.Builder().id(resultSet.getInt("id"))
-						.name(resultSet.getString("name"))
-						.description(resultSet.getString("description"))
-						.build();
-			}
-
-		} catch (SQLException e) {
+			tx = session.beginTransaction();
+			entity = (Role) session.get(Role.class, id);
+			tx.commit();
+			result = true;
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
 			log.error(GET_ROLE_ERROR_MSG + id);
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
 		}
-		return role;
+
+		return entity;
+
+		// Role role = null;
+		// try {
+		// PreparedStatement selectRole = null;
+		// String statement = SELECT_SINGLE_QUERY;
+		// selectRole = (PreparedStatement) this.connection
+		// .prepareStatement(statement);
+		// selectRole.setLong(1, id);
+		// ResultSet resultSet = (ResultSet) selectRole.executeQuery();
+		// if (resultSet.next()) {
+		// role = new Role.Builder().id(resultSet.getInt("id"))
+		// .name(resultSet.getString("name"))
+		// .description(resultSet.getString("description"))
+		// .build();
+		// }
+		//
+		// } catch (SQLException e) {
+		// log.error(GET_ROLE_ERROR_MSG + id);
+		// throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		// }
+		// return role;
 	}
 
 	public Collection<Role> retrive() throws ExceptionDAO {
-		Collection<Role> roleList = new ArrayList<Role>();
+		Session session = factory.openSession();
+		Transaction tx = null;
+		Collection<Role> roleList;
 		try {
-			Role role = null;
-			PreparedStatement selectRole = null;
-			String statement = SELECT_QUERY;
-			selectRole = (PreparedStatement) this.connection
-					.prepareStatement(statement);
-			ResultSet resultSet = (ResultSet) selectRole.executeQuery();
-			while (resultSet.next()) {
-				role = new Role.Builder().id(resultSet.getInt("id"))
-						.name(resultSet.getString("name"))
-						.description(resultSet.getString("description"))
-						.build();
-				roleList.add(role);
-			}
-		} catch (SQLException e) {
+			tx = session.beginTransaction();
+			roleList = session.createQuery("FROM role").list();
+			// for (Iterator iterator = roles.iterator(); iterator.hasNext();) {
+			// Role role = (Role) iterator.next();
+			// System.out.print("First Name: " + employee.getFirstName());
+			// System.out.print("  Last Name: " + employee.getLastName());
+			// System.out.println("  Salary: " + employee.getSalary());
+			// }
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
 			log.error(GET_ROLE_LIST_ERROR_MSG);
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
 		}
+
+		// Collection<Role> roleList = new ArrayList<Role>();
+		// try {
+		// Role role = null;
+		// PreparedStatement selectRole = null;
+		// String statement = SELECT_QUERY;
+		// selectRole = (PreparedStatement) this.connection
+		// .prepareStatement(statement);
+		// ResultSet resultSet = (ResultSet) selectRole.executeQuery();
+		// while (resultSet.next()) {
+		// role = new Role.Builder().id(resultSet.getInt("id"))
+		// .name(resultSet.getString("name"))
+		// .description(resultSet.getString("description"))
+		// .build();
+		// roleList.add(role);
+		// }
+		// } catch (SQLException e) {
+		// log.error(GET_ROLE_LIST_ERROR_MSG);
+		// throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		// }
 		return roleList;
 	}
 
 	public boolean delete(long id) throws ExceptionDAO {
+		Boolean result = false;
+		Session session = factory.openSession();
+		Transaction tx = null;
 		try {
-			PreparedStatement deleteRole = null;
-			String statement = DELETE_QUERY;
-			deleteRole = (PreparedStatement) this.connection
-					.prepareStatement(statement);
-			deleteRole.setLong(1, id);
-			int result = deleteRole.executeUpdate();
-			if (result != 0) {
-				return true;
-			}
-		} catch (SQLException e) {
+			tx = session.beginTransaction();
+			Role entity = (Role) session.get(Role.class, id);
+			session.delete(entity);
+			tx.commit();
+			result = true;
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
 			log.error(DELETE_ROLE_ERROR_MSG + id);
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
 		}
-		return false;
+		
+		return result;
+
+//		try {
+//			PreparedStatement deleteRole = null;
+//			String statement = DELETE_QUERY;
+//			deleteRole = (PreparedStatement) this.connection
+//					.prepareStatement(statement);
+//			deleteRole.setLong(1, id);
+//			int result = deleteRole.executeUpdate();
+//			if (result != 0) {
+//				return true;
+//			}
+//		} catch (SQLException e) {
+//			log.error(DELETE_ROLE_ERROR_MSG + id);
+//			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+//		}
+//		return false;
 	}
 
 	public boolean update(Role role) throws ExceptionDAO {

@@ -1,7 +1,11 @@
 package com.pentalog.nguzun.dao;
 
 import static org.junit.Assert.*;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -18,11 +22,11 @@ import com.pentalog.nguzun.vo.Role;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RoleDAOTest {
 
-    private static long roleId1;
-    private static long roleId2;
+	private static List<Long> roleIds = new ArrayList<Long>();
 
     @BeforeClass
     public static void setUp() throws Exception {
+    	Long id;
     	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
         for (Role group : roleDAO.retrive()) {
             roleDAO.delete(group.getId());
@@ -31,21 +35,23 @@ public class RoleDAOTest {
         		.name("Role 1")
 				.description("Description role 1")
 				.build();
-        roleId1 = roleDAO.create(role);
+        id = roleDAO.create(role);
+        roleIds.add(id);
 
         role = new Role.Builder()
 			.name("Role 2")
 			.description("Description role 2")
 			.build();
-        roleId2 = roleDAO.create(role);
+        id = roleDAO.create(role);
+        roleIds.add(id);
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
     	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
-        for (Role group : roleDAO.retrive()) {
-            roleDAO.delete(group.getId());
-        }
+    	for (Long roleId : roleIds) {
+    		roleDAO.delete(roleId);
+    	}
     }
 
     @Test
