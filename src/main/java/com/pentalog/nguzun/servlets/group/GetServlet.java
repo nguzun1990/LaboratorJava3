@@ -51,7 +51,7 @@ public class GetServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();		
 		JSONObject result = new JSONObject();
 		try {
-			long id = Long.parseLong(request.getParameter("id"));		
+			int id = Integer.parseInt(request.getParameter("id"));		
 			GroupDAO dao = DaoFactory.buildObject(GroupDAO.class);			
 			group = dao.retrive(id);
 			if (group != null) {

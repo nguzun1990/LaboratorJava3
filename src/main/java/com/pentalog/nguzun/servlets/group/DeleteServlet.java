@@ -51,12 +51,12 @@ public class DeleteServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Boolean success = false;
-		long id = 0;
+		int id = 0;
 		GroupDAO dao = DaoFactory.buildObject(GroupDAO.class);
 		JSONObject result = new JSONObject();
 		try {
 			if (!request.getParameter("id").equals("")) {
-				id = Long.parseLong(request.getParameter("id"));
+				id = Integer.parseInt(request.getParameter("id"));
 				success = dao.delete(id);	
 			}
 			result.put("success", success);

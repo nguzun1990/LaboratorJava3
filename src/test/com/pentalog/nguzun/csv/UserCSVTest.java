@@ -5,14 +5,22 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import com.pentalog.nguzun.dao.GroupDAO;
+import com.pentalog.nguzun.dao.RoleDAO;
+import com.pentalog.nguzun.factory.DaoFactory;
 import com.pentalog.nguzun.factory.FileProcessorFactory;
 import com.pentalog.nguzun.file.csv.UserCsvProcessor;
 import com.pentalog.nguzun.vo.Group;
+import com.pentalog.nguzun.vo.Role;
 import com.pentalog.nguzun.vo.User;
 
 /**
@@ -21,22 +29,63 @@ import com.pentalog.nguzun.vo.User;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserCSVTest {
+	
+	private static List<Integer> groupIds = new ArrayList<Integer>();
+	private static List<Integer> roleIds = new ArrayList<Integer>();
 
+	@BeforeClass
+    public static void setUp() throws Exception {
+		Integer id;
+    	GroupDAO groupDAO = DaoFactory.buildObject(GroupDAO.class);
+    	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);    	
+    	Role role = new Role.Builder()
+			.name("role 1")
+			.description("description 1")
+			.build(); 
+    	id = roleDAO.create(role);
+    	roleIds.add(id);
+
+        Group group = new Group.Builder()
+			.name("Grupa 1")
+			.description("Description group 1")
+			.role(role)
+			.build();
+        id = groupDAO.create(group);
+        groupIds.add(id);
+        
+        group = new Group.Builder()
+			.name("Grupa 2")
+			.description("Description group 2")
+			.role(role)
+			.build();
+        id = groupDAO.create(group);
+        groupIds.add(id);
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+    	GroupDAO groupDAO = DaoFactory.buildObject(GroupDAO.class);
+    	for (int groupId : groupIds) {
+    		groupDAO.delete(groupId);
+    	}
+    	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
+    	for (int roleId : roleIds) {
+    		roleDAO.delete(roleId);
+    	}
+    }
+	
 	@Test
     public void test1CreateEntity() {
 		UserCsvProcessor csv = FileProcessorFactory.buildObject(UserCsvProcessor.class);
-		String[] record = {"3", "Nicu Guzun", "nicubalti", "pass_word", "10"};
+		String[] record = {"3", "Nicu Guzun", "nicubalti", "pass_word", groupIds.get(0).toString()};
 		User actualUser = csv.createEntity(record);
-		User expectedUser = new User();
-		expectedUser.setId(3);
-		expectedUser.setName("Nicu Guzun");;
-		expectedUser.setLogin("nicubalti");
-		expectedUser.setPassword("pass_word");
 		
-		Group expectedGroup = new Group();
-		expectedGroup.setId(10);
-		expectedUser.setGroup(expectedGroup);
-		assertEquals(expectedUser, actualUser);		
+		assertEquals(3, actualUser.getId());
+		assertEquals("Nicu Guzun", actualUser.getName());
+		assertEquals("nicubalti", actualUser.getLogin());
+		assertEquals("pass_word", actualUser.getPassword());
+		assertEquals("Grupa 1", actualUser.getGroup().getName());
+		assertEquals("Description group 1", actualUser.getGroup().getDescription());
     }
 	
 	@Test
@@ -65,7 +114,7 @@ public class UserCSVTest {
 		user.setPassword("pass_word");
 		
 		Group group = new Group();
-		group.setId(10);
+		group.setId(groupIds.get(0));
 		user.setGroup(group);
 		csv.writeEntityToFile(user, "testUserFile.csv");
 		Collection<User> expectedList = new ArrayList<User>();
@@ -78,7 +127,11 @@ public class UserCSVTest {
 		while(expectedItr.hasNext()) {
 			User expectedItem = expectedItr.next();
 			User actualItem = actualItr.next();
-			assertEquals(expectedItem, actualItem);
+			assertEquals(expectedItem.getId(), actualItem.getId());
+			assertEquals(expectedItem.getName(), actualItem.getName());
+			assertEquals(expectedItem.getLogin(), actualItem.getLogin());
+			assertEquals(expectedItem.getPassword(), actualItem.getPassword());
+			assertEquals(expectedItem.getGroup().getId(), actualItem.getGroup().getId());
 		}
 
 	}
@@ -93,7 +146,7 @@ public class UserCSVTest {
 		user.setLogin("nicubalti_username");
 		user.setPassword("pass_word_1");
 		Group group = new Group();
-		group.setId(3);
+		group.setId(groupIds.get(0));
 		user.setGroup(group);
 		expectedList.add(user);		
 		user = new User();
@@ -102,7 +155,7 @@ public class UserCSVTest {
 		user.setLogin("vcazacu_username");
 		user.setPassword("pass_word_2");
 		group = new Group();
-		group.setId(8);
+		group.setId(groupIds.get(1));
 		user.setGroup(group);
 		expectedList.add(user);
 		csv.writeEntitiesToFile(expectedList, "testUserFile.csv");		
@@ -115,7 +168,11 @@ public class UserCSVTest {
 		while(expectedItr.hasNext()) {
 			User expectedItem = expectedItr.next();
 			User actualItem = actualItr.next();
-			assertEquals(expectedItem, actualItem);
+			assertEquals(expectedItem.getId(), actualItem.getId());
+			assertEquals(expectedItem.getName(), actualItem.getName());
+			assertEquals(expectedItem.getLogin(), actualItem.getLogin());
+			assertEquals(expectedItem.getPassword(), actualItem.getPassword());
+			assertEquals(expectedItem.getGroup().getId(), actualItem.getGroup().getId());
 		}
 
 	}

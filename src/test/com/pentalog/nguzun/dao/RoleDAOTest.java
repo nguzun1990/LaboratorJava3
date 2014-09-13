@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+
 import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
 import com.pentalog.nguzun.factory.DaoFactory;
 import com.pentalog.nguzun.vo.Role;
@@ -22,15 +23,12 @@ import com.pentalog.nguzun.vo.Role;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class RoleDAOTest {
 
-	private static List<Long> roleIds = new ArrayList<Long>();
+	private static List<Integer> roleIds = new ArrayList<Integer>();
 
     @BeforeClass
     public static void setUp() throws Exception {
-    	Long id;
+    	Integer id;
     	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
-        for (Role group : roleDAO.retrive()) {
-            roleDAO.delete(group.getId());
-        }
         Role role = new Role.Builder()
         		.name("Role 1")
 				.description("Description role 1")
@@ -49,7 +47,7 @@ public class RoleDAOTest {
     @AfterClass
     public static void tearDown() throws Exception {
     	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
-    	for (Long roleId : roleIds) {
+    	for (int roleId : roleIds) {
     		roleDAO.delete(roleId);
     	}
     }
@@ -57,11 +55,11 @@ public class RoleDAOTest {
     @Test
     public void test1RetriveById() throws ExceptionDAO {
     	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
-        Role actualRole = (Role) roleDAO.retrive(roleId1);
+        Role actualRole = roleDAO.retrive(roleIds.get(0));
         assertEquals("Role 1", actualRole.getName());
         assertEquals("Description role 1", actualRole.getDescription());
         
-        actualRole = (Role) roleDAO.retrive(roleId2);
+        actualRole = roleDAO.retrive(roleIds.get(1));
         assertEquals("Role 2", actualRole.getName());
         assertEquals("Description role 2", actualRole.getDescription());
     }
@@ -70,7 +68,7 @@ public class RoleDAOTest {
     public void test2RetriveList() throws ExceptionDAO {
     	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
         Collection<Role> list = roleDAO.retrive();
-        assertEquals(2, list.size());
+        assertTrue(list.size() > 0);
     }
 
     @Test
@@ -80,30 +78,32 @@ public class RoleDAOTest {
 			.name("Role 3")
 			.description("Description for role 3")
 			.build();
-        roleDAO.create(role);
-        Collection<Role> list = roleDAO.retrive();
-        assertEquals(3, list.size());
+        int insertedRoleID = roleDAO.create(role);
+        Role actualRole = roleDAO.retrive(insertedRoleID);
+        assertEquals(role.getName(), actualRole.getName());
+        assertEquals(role.getDescription(), actualRole.getDescription());
     }
     
     @Test
     public void test5Delete() throws ExceptionDAO {
     	RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
-        Collection<Role> list = roleDAO.retrive();
-        assertEquals(3, list.size());
-        roleDAO.delete(roleId2);
-        list = roleDAO.retrive();
-        assertEquals(2, list.size());
+    	Role role = roleDAO.retrive(roleIds.get(1));
+    	assertNotNull(role);
+    	roleDAO.delete(roleIds.get(1));
+    	role = roleDAO.retrive(roleIds.get(1));
+    	assertNull(role);
+    	roleIds.remove(1);
     }
     
     @Test
     public void test4Update() throws ExceptionDAO {
         RoleDAO roleDAO = DaoFactory.buildObject(RoleDAO.class);
-        Role role = (Role) roleDAO.retrive(roleId1);
+        Role role = (Role) roleDAO.retrive(roleIds.get(0));
         role.setName("Role 4");
         role.setDescription("Descriere role 4");
         roleDAO.update(role);
-        Role updatedUser = (Role) roleDAO.retrive(roleId1);
-        assertEquals("Role 4", updatedUser.getName());
-        assertEquals("Descriere role 4", updatedUser.getDescription());
+        Role updatedRole = (Role) roleDAO.retrive(roleIds.get(0));
+        assertEquals("Role 4", updatedRole.getName());
+        assertEquals("Descriere role 4", updatedRole.getDescription());
     }
 }

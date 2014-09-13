@@ -39,22 +39,18 @@ public class GroupDAO implements BaseDAO<Group> {
     public static final String INSERT_QUERY = "INSERT INTO groups (name, description, id_role)  VALUES (?, ?, ?)";
     public static final String DELETE_QUERY = "DELETE FROM groups WHERE id = ?";
     
-    
-    public Connection connection = null;
     private static final Logger log = Logger.getLogger(GroupDAO.class.getName());
     private static GroupDAO instance;
     private RoleDAO roleDAO;
     private static SessionFactory factory; 
     
     private GroupDAO() {
-        connection = ConnectionDB.getInstance();//TODO revie if needed
-        roleDAO  = DaoFactory.buildObject(RoleDAO.class);//TODO revie if needed
-        try{
-            factory = new Configuration().configure().buildSessionFactory();
-         }catch (Throwable ex) { 
-            System.err.println("Failed to create sessionFactory object. " + ex);
-            throw new ExceptionInInitializerError(ex); 
-         }
+    	try {
+			factory = new Configuration().configure().buildSessionFactory();
+		} catch (Throwable ex) {
+			System.err.println("Failed to create sessionFactory object. " + ex);
+			throw new ExceptionInInitializerError(ex);
+		}
     }
 
     public static GroupDAO getInstance() {
@@ -64,112 +60,114 @@ public class GroupDAO implements BaseDAO<Group> {
 		return instance;
 	}
     
-    public Group retrive(long id) throws ExceptionDAO {
-        Group group = null;
-        Role role = null;
-        try {            
-            PreparedStatement selectGroup = null;
-            String statement = SELECT_SINGLE_QUERY;
-            selectGroup =  (PreparedStatement) this.connection.prepareStatement(statement);
-            selectGroup.setLong(1, id);
-            ResultSet resultSet = (ResultSet) selectGroup.executeQuery();
-            if (resultSet.next()) {     
-            	role = roleDAO.retrive(resultSet.getInt("id_role"));
-            	group = new Group.Builder()
-            		.id(resultSet.getInt("id"))
-            		.name(resultSet.getString("name"))
-					.description(resultSet.getString("description"))
-					.role(role)
-					.build();
-            }
+    public Group retrive(int id) throws ExceptionDAO {
+    	Group entity = null;
+		Session session = factory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			entity = (Group) session.get(Group.class, id);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			log.error(GET_GROUP_ERROR_MSG + id);
+			e.printStackTrace();
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
+		}
 
-        } catch (SQLException e) {
-            log.error(GET_GROUP_ERROR_MSG + id);
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
-        }
-        return group;
+		return entity;
     }
 
     public Collection<Group> retrive() throws ExceptionDAO {
-        Collection<Group> groupList = new ArrayList<Group>();
-        try {
-        	Group group = null;
-        	Role role = null;
-            PreparedStatement selectGroup = null;
-            String statement = SELECT_QUERY;
-            selectGroup = (PreparedStatement) this.connection.prepareStatement(statement);
-            ResultSet resultSet = (ResultSet) selectGroup.executeQuery();
-            while (resultSet.next()) {
-            	role = roleDAO.retrive(resultSet.getInt("id_role"));
-            	group = new Group.Builder()
-	        		.id(resultSet.getInt("id"))
-	        		.name(resultSet.getString("name"))
-					.description(resultSet.getString("description"))
-					.role(role)
-					.build();
-            	groupList.add(group);
-            }
-        } catch (SQLException e) {
-            log.error(GET_GROUP_LIST_ERROR_MSG);
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
-        }
-        return groupList;
-    }
-
-    public boolean delete(long id) throws ExceptionDAO {
-        try {
-            PreparedStatement deleteGroup = null;
-            String statement = DELETE_QUERY;
-            deleteGroup = (PreparedStatement) this.connection.prepareStatement(statement);
-            deleteGroup.setLong(1, id);
-            int result = deleteGroup.executeUpdate();
-            if (result != 0) {
-                return true;
-            }
-        } catch (SQLException e) {
-            log.error(DELETE_GROUP_ERROR_MSG + id);
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
-        }
-        return false;
-    }
-
-    //TODO gandestete la o metoda ca sa nu faci update daca nu e nevoie NotDone
-    public boolean update(Group group) throws ExceptionDAO {
-    	try {
-            PreparedStatement updateGroup = null;
-            String statement = UPDATE_QUERY;
-            updateGroup = (PreparedStatement) this.connection.prepareStatement(statement);
-            updateGroup.setString(1, group.getName());
-            updateGroup.setString(2, group.getDescription());
-            updateGroup.setInt(3, group.getRole().getId());
-            updateGroup.setInt(4, group.getId());
-            int result = updateGroup.executeUpdate();
-            if (result != 0) {
-                return true;
-            }
-        } catch (SQLException e) {
-            log.error(UPDATE_GROUP_ERROR_MSG +  group.getId());
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
-        }
-        return false;
-    }
-
-
-    public long create(Group group) throws ExceptionDAO {
     	Session session = factory.openSession();
-        Transaction tx = null;
-        Integer groupID = null;
-        try{
-           tx = session.beginTransaction();
-           groupID = (Integer) session.save(group); 
-           tx.commit();
-        }catch (HibernateException e) {
-           if (tx!=null) tx.rollback();
-           e.printStackTrace(); 
-        }finally {
-           session.close(); 
-        }
-        return groupID;
+		Transaction tx = null;
+		Collection<Group> groupList;
+		try {
+			tx = session.beginTransaction();
+			groupList = session.createQuery("FROM Group").list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			log.error(GET_GROUP_LIST_ERROR_MSG);
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);			
+		} finally {
+			session.close();
+		}
+
+		return groupList;
+    }
+
+    public boolean delete(int id) throws ExceptionDAO {
+    	Boolean result = false;
+		Session session = factory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			Group entity = (Group) session.get(Group.class, id);
+			session.delete(entity);
+			tx.commit();
+			result = true;
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			log.error(DELETE_GROUP_ERROR_MSG + id);
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
+		}
+		
+		return result;
+    }
+
+    public boolean update(Group group) throws ExceptionDAO {
+    	Boolean result = false;
+		Session session = factory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			Group entity = (Group) session.get(Group.class, group.getId());
+			entity.setName(group.getName());
+			entity.setDescription(group.getDescription());
+			entity.setRole(group.getRole());
+			session.update(entity);
+			tx.commit();
+			result = true;
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			log.error(UPDATE_GROUP_ERROR_MSG + group.getId());
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
+		}
+
+		return result;
+    }
+
+
+    public int create(Group group) throws ExceptionDAO {
+    	Session session = factory.openSession();
+		Transaction tx = null;
+		Integer groupID = null;
+		try {
+			tx = session.beginTransaction();
+			groupID = (Integer) session.save(group);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			log.error(CREATE_GROUP_ERROR_MSG + groupID);
+			e.printStackTrace();
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
+		}
+		return groupID;
 
     }
 

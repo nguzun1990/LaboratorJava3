@@ -23,8 +23,8 @@ public class User extends BaseValueObject {
 	@Column(name = "password")
     private String password;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_group", nullable = false)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "id_group", nullable = true)
     private Group group;
 
     public User(){

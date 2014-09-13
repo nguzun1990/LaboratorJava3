@@ -16,6 +16,11 @@ import com.pentalog.nguzun.vo.User;
 import java.sql.Connection;
 
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 
 /**
  *
@@ -35,14 +40,18 @@ public class UserDAO implements BaseDAO<User> {
     public static final String INSERT_QUERY = "INSERT INTO user(name, login, password, id_group) VALUES (?, ?, ?, ?)";
     public static final String DELETE_QUERY = "DELETE FROM user WHERE id = ?";
     
-    public Connection connection = null;
     private static final Logger log = Logger.getLogger(UserDAO.class.getName());
     private static UserDAO instance;
     private GroupDAO groupDAO;
+    private static SessionFactory factory; 
 
     private UserDAO() {
-        connection = ConnectionDB.getInstance();
-        groupDAO  = DaoFactory.buildObject(GroupDAO.class);
+        try {
+			factory = new Configuration().configure().buildSessionFactory();
+		} catch (Throwable ex) {
+			System.err.println("Failed to create sessionFactory object. " + ex);
+			throw new ExceptionInInitializerError(ex);
+		}
     }
 
     public static UserDAO getInstance() {
@@ -53,125 +62,118 @@ public class UserDAO implements BaseDAO<User> {
 	}
 
     
-    public User retrive(long id) throws ExceptionDAO {
-        User user = null;
-        Group group = null;
-        try {
-            PreparedStatement selectUser = null;
-            String statement = SELECT_SINGLE_QUERY;
-            selectUser = (PreparedStatement) this.connection.prepareStatement(statement);
-            selectUser.setLong(1, id);
-            ResultSet resultSet = (ResultSet) selectUser.executeQuery();
-            if (resultSet.next()) {
-            	group = groupDAO.retrive(resultSet.getInt("id_group"));
-                user = new User.Builder()
-	        		.id(resultSet.getInt("id"))
-	        		.name(resultSet.getString("name"))
-					.login(resultSet.getString("login"))
-					.password(resultSet.getString("password"))
-					.group(group)
-					.build();    
-            }
+    public User retrive(int id) throws ExceptionDAO {
+    	User entity = null;
+		Session session = factory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			entity = (User) session.get(User.class, id);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			log.error(GET_USER_ERROR_MSG + id);
+			e.printStackTrace();
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
+		}
 
-        } catch (SQLException e) {
-            log.error(GET_USER_ERROR_MSG + id);
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
-        }
-        
-        return user;
+		return entity;
     }
 
     
     public Collection<User> retrive() throws ExceptionDAO {
-        Collection<User> userList = new ArrayList<User>();
-        try {
-            User user = null;
-            Group group = null;
-            PreparedStatement selectUser = null;
-            String statement = SELECT_QUERY;
-            selectUser = (PreparedStatement) this.connection.prepareStatement(statement);
-            ResultSet resultSet = (ResultSet) selectUser.executeQuery();
-            while (resultSet.next()) {
-            	group = groupDAO.retrive(resultSet.getInt("id_group"));
-            	user = new User.Builder()
-	        		.id(resultSet.getInt("id"))
-	        		.name(resultSet.getString("name"))
-					.login(resultSet.getString("login"))
-					.password(resultSet.getString("password"))
-					.group(group)
-					.build(); 
-                userList.add(user);
-            }
-        } catch (SQLException e) {
-            log.error(GET_USER_LIST_ERROR_MSG);
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
-        }
-        
-        return userList;
+    	Session session = factory.openSession();
+		Transaction tx = null;
+		Collection<User> userList;
+		try {
+			tx = session.beginTransaction();
+			userList = session.createQuery("FROM User").list();
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			log.error(GET_USER_LIST_ERROR_MSG);
+			e.printStackTrace();
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);			
+		} finally {
+			session.close();
+		}
+
+		return userList;
     }
 
     
-    public boolean delete(long id) throws ExceptionDAO {
-        try {
-            PreparedStatement deleteUser = null;
-            String statement = DELETE_QUERY;
-            deleteUser = (PreparedStatement) this.connection.prepareStatement(statement);
-            deleteUser.setLong(1, id);
-            int result = deleteUser.executeUpdate();
-            if (result != 0) {
-                return true;
-            }
-        } catch (SQLException e) {
-            log.error(DELETE_USER_ERROR_MSG + id);
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
-        }
-        
-        return false;
+    public boolean delete(int id) throws ExceptionDAO {
+    	Boolean result = false;
+		Session session = factory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			User entity = (User) session.get(User.class, id);
+			session.delete(entity);
+			tx.commit();
+			result = true;
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			log.error(DELETE_USER_ERROR_MSG + id);
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
+		}
+		
+		return result;
     }
 
     
     public boolean update(User user) throws ExceptionDAO {
-        try {
-            PreparedStatement updateUser = null;
-            String statement = UPDATE_QUERY;
-            updateUser = (PreparedStatement) this.connection.prepareStatement(statement);
-            updateUser.setString(1, user.getName());
-            updateUser.setString(2, user.getLogin());
-            updateUser.setString(3, user.getPassword());
-            updateUser.setInt(4, user.getGroup().getId());
-            updateUser.setInt(5, user.getId());
-            int result = updateUser.executeUpdate();
-            if (result != 0) {
-                return true;
-            }
-        } catch (SQLException e) {
-            log.error(UPDATE_USER_ERROR_MSG + user.getId());
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
-        } 
-        
-        return false;
+    	Boolean result = false;
+		Session session = factory.openSession();
+		Transaction tx = null;
+		try {
+			tx = session.beginTransaction();
+			User entity = (User) session.get(User.class, user.getId());
+			entity.setName(user.getName());
+			entity.setLogin(user.getLogin());
+			entity.setPassword(user.getPassword());
+			entity.setGroup(user.getGroup());
+			session.update(entity);
+			tx.commit();
+			result = true;
+		} catch (HibernateException e) {
+			if (tx != null)
+				tx.rollback();
+			log.error(UPDATE_USER_ERROR_MSG + user.getId());
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
+		}
+
+		return result;
     }
 
     
-    public long create(User user) throws ExceptionDAO {
-        long lastInsertID = 0;
-        try {
-            PreparedStatement insertUser = null;
-            String statement = INSERT_QUERY;
-            insertUser = (PreparedStatement) this.connection.prepareStatement(statement);
-            insertUser.setString(1, user.getName());
-            insertUser.setString(2, user.getLogin());
-            insertUser.setString(3, user.getPassword());
-            insertUser.setInt(4, user.getGroup().getId());
-            int result = insertUser.executeUpdate();
-            if (result != 0) {
-                lastInsertID = insertUser.getLastInsertID();
-            }
-        } catch (SQLException e) {
-            log.error(CREATE_USER_ERROR_MSG);
-            throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
-        }
-        
-        return lastInsertID;
+    public int create(User user) throws ExceptionDAO {
+    	Session session = factory.openSession();
+		Transaction tx = null;
+		Integer userID = null;
+		try {
+			tx = session.beginTransaction();
+			userID = (Integer) session.save(user);
+			tx.commit();
+		} catch (HibernateException e) {
+			if (tx != null) {
+				tx.rollback();
+			}
+			log.error(CREATE_USER_ERROR_MSG + userID);
+			e.printStackTrace();
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
+		} finally {
+			session.close();
+		}
+		return userID;
     }
 }

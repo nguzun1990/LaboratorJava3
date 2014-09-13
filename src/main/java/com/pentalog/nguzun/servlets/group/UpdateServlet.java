@@ -58,7 +58,7 @@ public class UpdateServlet extends HttpServlet {
 		String name = request.getParameter("name");
 		String description = request.getParameter("description");
 		int roleId = Integer.parseInt(request.getParameter("role_id"));
-		long id = 0;
+		int id = 0;
 		GroupDAO dao = DaoFactory.buildObject(GroupDAO.class);
 		RoleDAO roleDao = DaoFactory.buildObject(RoleDAO.class);
 		JSONObject result = new JSONObject();
@@ -75,7 +75,7 @@ public class UpdateServlet extends HttpServlet {
 					success = true;
 				}	
 			} else {
-				id = Long.parseLong(request.getParameter("id"));
+				id = Integer.parseInt(request.getParameter("id"));
 				group = dao.retrive(id);
 				if (group != null) {
 					group.setName(name);

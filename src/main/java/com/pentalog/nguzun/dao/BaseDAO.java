@@ -14,11 +14,11 @@ public interface  BaseDAO<T extends BaseValueObject> {
 
     Collection<T> retrive() throws ExceptionDAO;
 
-    boolean delete(long id) throws ExceptionDAO;
+    boolean delete(int id) throws ExceptionDAO;
 
     boolean update(T baseValueObject) throws ExceptionDAO;
 
-    T retrive(long id) throws ExceptionDAO;
+    T retrive(int id) throws ExceptionDAO;
 
-    long create(T baseValueObject) throws ExceptionDAO;
+    int create(T baseValueObject) throws ExceptionDAO;
 }

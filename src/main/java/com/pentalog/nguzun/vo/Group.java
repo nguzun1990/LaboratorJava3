@@ -19,9 +19,10 @@ public class Group extends BaseValueObject {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
 	private Set<User> users = new HashSet<User>(0);
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "id_role", nullable = false)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "id_role", nullable = true)
     private Role role;
+
 
     public Group(){
     }
