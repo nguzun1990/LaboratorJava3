@@ -69,13 +69,10 @@ public abstract class BaseXmlProcessor<T extends BaseValueObject> implements Bas
 			}
 		} catch (ParserConfigurationException e) {
 			log.error(e.getMessage(), e);
-			e.printStackTrace();
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
-			e.printStackTrace();
 		}catch (SAXException e) {
 			log.error(e.getMessage(), e);
-			e.printStackTrace();
 		}
 		
 		return list;

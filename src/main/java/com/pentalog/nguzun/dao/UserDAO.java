@@ -1,19 +1,6 @@
 package com.pentalog.nguzun.dao;
 
-import com.mysql.jdbc.PreparedStatement;
-import com.mysql.jdbc.ResultSet;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-
-import com.pentalog.nguzun.common.ConnectionDB;
-import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
-import com.pentalog.nguzun.factory.DaoFactory;
-import com.pentalog.nguzun.vo.Group;
-import com.pentalog.nguzun.vo.User;
-
-import java.sql.Connection;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -21,6 +8,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+
+import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
+import com.pentalog.nguzun.vo.User;
 
 /**
  *
@@ -33,16 +23,10 @@ public class UserDAO implements BaseDAO<User> {
     public static final String UPDATE_USER_ERROR_MSG = "Errore on update user with id ";
     public static final String CREATE_USER_ERROR_MSG = "Errore on create user";
     public static final String DELETE_USER_ERROR_MSG = "Errore on delete user";
-    
-    public static final String SELECT_SINGLE_QUERY = "SELECT * FROM user WHERE id = ?";
-    public static final String SELECT_QUERY = "SELECT * FROM user";
-    public static final String UPDATE_QUERY = "UPDATE user SET name = ?, login = ?, password = ?, id_group = ? WHERE id = ?";
-    public static final String INSERT_QUERY = "INSERT INTO user(name, login, password, id_group) VALUES (?, ?, ?, ?)";
-    public static final String DELETE_QUERY = "DELETE FROM user WHERE id = ?";
+
     
     private static final Logger log = Logger.getLogger(UserDAO.class.getName());
     private static UserDAO instance;
-    private GroupDAO groupDAO;
     private static SessionFactory factory; 
 
     private UserDAO() {
@@ -65,16 +49,10 @@ public class UserDAO implements BaseDAO<User> {
     public User retrive(int id) throws ExceptionDAO {
     	User entity = null;
 		Session session = factory.openSession();
-		Transaction tx = null;
 		try {
-			tx = session.beginTransaction();
 			entity = (User) session.get(User.class, id);
-			tx.commit();
 		} catch (HibernateException e) {
-			if (tx != null)
-				tx.rollback();
 			log.error(GET_USER_ERROR_MSG + id);
-			e.printStackTrace();
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
 		} finally {
 			session.close();
@@ -86,17 +64,11 @@ public class UserDAO implements BaseDAO<User> {
     
     public Collection<User> retrive() throws ExceptionDAO {
     	Session session = factory.openSession();
-		Transaction tx = null;
 		Collection<User> userList;
 		try {
-			tx = session.beginTransaction();
 			userList = session.createQuery("FROM User").list();
-			tx.commit();
 		} catch (HibernateException e) {
-			if (tx != null)
-				tx.rollback();
 			log.error(GET_USER_LIST_ERROR_MSG);
-			e.printStackTrace();
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);			
 		} finally {
 			session.close();
@@ -169,7 +141,6 @@ public class UserDAO implements BaseDAO<User> {
 				tx.rollback();
 			}
 			log.error(CREATE_USER_ERROR_MSG + userID);
-			e.printStackTrace();
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
 		} finally {
 			session.close();

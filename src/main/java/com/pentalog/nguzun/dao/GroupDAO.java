@@ -1,25 +1,16 @@
 package com.pentalog.nguzun.dao;
 
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.PreparedStatement;
-import com.mysql.jdbc.ResultSet;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 
-import com.pentalog.nguzun.common.ConnectionDB;
-import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
-import com.pentalog.nguzun.factory.DaoFactory;
-import com.pentalog.nguzun.vo.Group;
-import com.pentalog.nguzun.vo.Role;
-
-import org.hibernate.HibernateException; 
-import org.hibernate.Session; 
-import org.hibernate.Transaction;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
 import org.apache.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
+import com.pentalog.nguzun.vo.Group;
 
 /**
  *
@@ -32,16 +23,9 @@ public class GroupDAO implements BaseDAO<Group> {
     public static final String UPDATE_GROUP_ERROR_MSG = "Errore on update group with id ";
     public static final String CREATE_GROUP_ERROR_MSG = "Errore on create group";
     public static final String DELETE_GROUP_ERROR_MSG = "Errore on delete group";
-    
-    public static final String SELECT_SINGLE_QUERY = "SELECT * FROM groups WHERE id = ?";
-    public static final String SELECT_QUERY = "SELECT * FROM groups";
-    public static final String UPDATE_QUERY = "UPDATE groups SET name = ?, description = ?, id_role = ? WHERE id = ?";
-    public static final String INSERT_QUERY = "INSERT INTO groups (name, description, id_role)  VALUES (?, ?, ?)";
-    public static final String DELETE_QUERY = "DELETE FROM groups WHERE id = ?";
-    
+   
     private static final Logger log = Logger.getLogger(GroupDAO.class.getName());
     private static GroupDAO instance;
-    private RoleDAO roleDAO;
     private static SessionFactory factory; 
     
     private GroupDAO() {
@@ -63,16 +47,10 @@ public class GroupDAO implements BaseDAO<Group> {
     public Group retrive(int id) throws ExceptionDAO {
     	Group entity = null;
 		Session session = factory.openSession();
-		Transaction tx = null;
 		try {
-			tx = session.beginTransaction();
 			entity = (Group) session.get(Group.class, id);
-			tx.commit();
 		} catch (HibernateException e) {
-			if (tx != null)
-				tx.rollback();
 			log.error(GET_GROUP_ERROR_MSG + id);
-			e.printStackTrace();
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
 		} finally {
 			session.close();
@@ -83,15 +61,10 @@ public class GroupDAO implements BaseDAO<Group> {
 
     public Collection<Group> retrive() throws ExceptionDAO {
     	Session session = factory.openSession();
-		Transaction tx = null;
 		Collection<Group> groupList;
 		try {
-			tx = session.beginTransaction();
 			groupList = session.createQuery("FROM Group").list();
-			tx.commit();
 		} catch (HibernateException e) {
-			if (tx != null)
-				tx.rollback();
 			log.error(GET_GROUP_LIST_ERROR_MSG);
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);			
 		} finally {
@@ -162,7 +135,6 @@ public class GroupDAO implements BaseDAO<Group> {
 				tx.rollback();
 			}
 			log.error(CREATE_GROUP_ERROR_MSG + groupID);
-			e.printStackTrace();
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);
 		} finally {
 			session.close();
