@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Laboratorul 2</title>
+<title>Laboratorul 3</title>
 <link rel="stylesheet" href="main.css">
 <script type="text/javascript" src="main.js"></script>
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
