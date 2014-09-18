@@ -3,6 +3,7 @@ package com.pentalog.nguzun.vo;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -18,7 +19,8 @@ import javax.persistence.Table;
 @Table(name = "role")
 public class Role extends BaseValueObject {
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "role", cascade = {
+			CascadeType.PERSIST, CascadeType.MERGE })
 	private Set<Group> groups = new HashSet<Group>(0);
 	
 	@Column(name = "description")

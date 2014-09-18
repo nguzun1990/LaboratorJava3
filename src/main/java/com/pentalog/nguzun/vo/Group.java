@@ -16,7 +16,8 @@ public class Group extends BaseValueObject {
 	@Column(name = "description")
     private String description;
 	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group", cascade = {
+			CascadeType.PERSIST, CascadeType.MERGE })
 	private Set<User> users = new HashSet<User>(0);
 	
 	@ManyToOne(fetch = FetchType.EAGER)
