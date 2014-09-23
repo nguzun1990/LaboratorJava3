@@ -15,6 +15,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.pentalog.nguzun.common.DependencyParams;
 import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
 import com.pentalog.nguzun.vo.User;
 
@@ -68,14 +69,14 @@ public class UserDAO implements BaseDAO<User> {
     }
 
     
-    public Collection<User> retrive(HttpServletRequest request) throws ExceptionDAO {
+    public Collection<User> retrive(DependencyParams dependencyParams) throws ExceptionDAO {
     	Session session = factory.openSession();
 		Collection<User> userList;
 		
 		//-----------------------------------------------23-09-2014
 		Criteria criteria = session.createCriteria(User.class);
-		criteria = sort(request, criteria);
-		criteria = filter(request, criteria);
+		criteria = sort(dependencyParams, criteria);
+		criteria = filter(dependencyParams, criteria);
 //		cr.addOrder(order);
 		userList = criteria.list();
 		
@@ -180,16 +181,27 @@ public class UserDAO implements BaseDAO<User> {
 		return null;
 	}
 	
-	public Criteria sort(HttpServletRequest request, Criteria criteria) {
-		String sortBy = request.getParameter("sort[property]");
-		String sortDirection = request.getParameter("sort[direction]");
-		if (sortBy != null && sortDirection != null) {
-			
-		}
+	public Criteria sort(DependencyParams dependencyParams, Criteria criteria) {
+		String orderBy = dependencyParams.getOrderBy();
+		String direction = dependencyParams.getDirection();
+		if (orderBy != null && direction != null) {
+			Order order = null;
+			if (direction.equals("asc")) {
+				order = Order.asc(orderBy);
+			} else if (direction.equals("desc")) {
+				order =Order.desc(orderBy);
+			}
+			if (order != null) {
+				criteria.addOrder(order);
+			}
+			criteria.createCriteria("group")
+            .addOrder(order);
+		}		
+		
 		return criteria;
 	}
 	
-	public Criteria filter(HttpServletRequest request, Criteria criteria) {
+	public Criteria filter(DependencyParams dependencyParams, Criteria criteria) {
 		return criteria;
 	}
 }

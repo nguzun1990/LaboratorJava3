@@ -1,3 +1,4 @@
+<%@page import="com.pentalog.nguzun.common.DependencyParams"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1" import="com.pentalog.nguzun.vo.*"
 	import="com.pentalog.nguzun.dao.*"
@@ -24,8 +25,8 @@
 		String property = request.getParameter("sort[property]");
 		String direction = request.getParameter("sort[direction]");
 // 		Order order = UserCriteria.getOrder(property, direction);
-		
-		Collection<User> userList = userDAO.retrive(request);
+		DependencyParams dependencyParams = new DependencyParams(request);
+		Collection<User> userList = userDAO.retrive(dependencyParams);
 		
 
 		%>
