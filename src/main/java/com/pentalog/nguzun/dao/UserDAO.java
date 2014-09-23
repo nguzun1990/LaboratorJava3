@@ -1,6 +1,9 @@
 package com.pentalog.nguzun.dao;
 
+import java.net.HttpRetryException;
 import java.util.Collection;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -65,22 +68,24 @@ public class UserDAO implements BaseDAO<User> {
     }
 
     
-    public Collection<User> retrive(Order order) throws ExceptionDAO {
+    public Collection<User> retrive(HttpServletRequest request) throws ExceptionDAO {
     	Session session = factory.openSession();
 		Collection<User> userList;
 		
 		//-----------------------------------------------23-09-2014
-//		Criteria cr = session.createCriteria(User.class);
+		Criteria criteria = session.createCriteria(User.class);
+		criteria = sort(request, criteria);
+		criteria = filter(request, criteria);
 //		cr.addOrder(order);
+		userList = criteria.list();
+		
+//		
+//		Criteria cr = (Criteria) session
+//				.createCriteria(User.class)
+//                .createCriteria("group")
+//                .addOrder(order);
+		
 //		userList = cr.list();
-		
-		
-		Criteria cr = (Criteria) session
-				.createCriteria(User.class)
-                .createCriteria("group")
-                .addOrder(order);
-		
-		userList = cr.list();
                 
 //		
 		//-----------------------------------------------23-09-2014
@@ -173,5 +178,18 @@ public class UserDAO implements BaseDAO<User> {
 	public Collection<User> retrive() throws ExceptionDAO {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public Criteria sort(HttpServletRequest request, Criteria criteria) {
+		String sortBy = request.getParameter("sort[property]");
+		String sortDirection = request.getParameter("sort[direction]");
+		if (sortBy != null && sortDirection != null) {
+			
+		}
+		return criteria;
+	}
+	
+	public Criteria filter(HttpServletRequest request, Criteria criteria) {
+		return criteria;
 	}
 }

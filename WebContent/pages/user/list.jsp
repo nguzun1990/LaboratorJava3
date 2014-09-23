@@ -23,12 +23,11 @@
 		
 		String property = request.getParameter("sort[property]");
 		String direction = request.getParameter("sort[direction]");
-		Order order = UserCriteria.getOrder(property, direction);
+// 		Order order = UserCriteria.getOrder(property, direction);
 		
-		Collection<User> userList = userDAO.retrive(order);
+		Collection<User> userList = userDAO.retrive(request);
 		
 
-		
 		%>
 		<input type="button" value="Add" onclick="showAddUserForm()">
 		<table border="1">
