@@ -5,6 +5,9 @@ import java.util.Set;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 /**
  *
  * @author Guzun
@@ -16,12 +19,11 @@ public class Group extends BaseValueObject {
 	@Column(name = "description")
     private String description;
 	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group", cascade = {
-			CascadeType.PERSIST, CascadeType.MERGE })
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<User> users = new HashSet<User>(0);
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "id_role", nullable = true)
+	@JoinColumn(name = "id_role", nullable = false)
     private Role role;
 
 

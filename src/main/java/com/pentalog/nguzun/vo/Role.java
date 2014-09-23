@@ -10,6 +10,9 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 
 /**
  *
@@ -19,8 +22,7 @@ import javax.persistence.Table;
 @Table(name = "role")
 public class Role extends BaseValueObject {
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "role", cascade = {
-			CascadeType.PERSIST, CascadeType.MERGE })
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<Group> groups = new HashSet<Group>(0);
 	
 	@Column(name = "description")

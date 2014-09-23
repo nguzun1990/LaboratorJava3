@@ -4,7 +4,9 @@
 	import="com.pentalog.nguzun.factory.*" 
 	import="java.util.*"
 	import="com.pentalog.nguzun.dao.Exception.*"
-	import="org.apache.log4j.Logger" %>
+	import="org.apache.log4j.Logger" 
+	import="com.pentalog.nguzun.criteria.UserCriteria" 
+	import="org.hibernate.criterion.*" %>
 <%!
 	UserDAO userDAO;
 	GroupDAO groupDAO;
@@ -15,7 +17,18 @@
 	try{
 		userDAO = DaoFactory.buildObject(UserDAO.class);
 		GroupDAO groupDAO = DaoFactory.buildObject(GroupDAO.class);
-		Collection<User> userList = userDAO.retrive();
+		
+		System.out.println(request.getParameter("sort[property]"));
+		System.out.println(request.getParameter("sort[direction]"));
+		
+		String property = request.getParameter("sort[property]");
+		String direction = request.getParameter("sort[direction]");
+		Order order = UserCriteria.getOrder(property, direction);
+		
+		Collection<User> userList = userDAO.retrive(order);
+		
+
+		
 		%>
 		<input type="button" value="Add" onclick="showAddUserForm()">
 		<table border="1">

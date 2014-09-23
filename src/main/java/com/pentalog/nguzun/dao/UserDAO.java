@@ -3,11 +3,14 @@ package com.pentalog.nguzun.dao;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 
 import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
 import com.pentalog.nguzun.vo.User;
@@ -62,11 +65,29 @@ public class UserDAO implements BaseDAO<User> {
     }
 
     
-    public Collection<User> retrive() throws ExceptionDAO {
+    public Collection<User> retrive(Order order) throws ExceptionDAO {
     	Session session = factory.openSession();
 		Collection<User> userList;
+		
+		//-----------------------------------------------23-09-2014
+//		Criteria cr = session.createCriteria(User.class);
+//		cr.addOrder(order);
+//		userList = cr.list();
+		
+		
+		Criteria cr = (Criteria) session
+				.createCriteria(User.class)
+                .createCriteria("group")
+                .addOrder(order);
+		
+		userList = cr.list();
+                
+//		
+		//-----------------------------------------------23-09-2014
+		        
+		
 		try {
-			userList = session.createQuery("FROM User").list();
+//			userList = session.createQuery("FROM User").list();
 		} catch (HibernateException e) {
 			log.error(GET_USER_LIST_ERROR_MSG);
 			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);			
@@ -147,4 +168,10 @@ public class UserDAO implements BaseDAO<User> {
 		}
 		return userID;
     }
+
+	@Override
+	public Collection<User> retrive() throws ExceptionDAO {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

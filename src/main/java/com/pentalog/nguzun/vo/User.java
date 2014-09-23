@@ -24,7 +24,7 @@ public class User extends BaseValueObject {
     private String password;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "id_group", nullable = true)
+	@JoinColumn(name = "id_group", nullable = false)
     private Group group;
 
     public User(){
