@@ -1,4 +1,4 @@
-<form method="GET" action="<%=request.getContextPath()%>/pages/user/list.jsp" >
+<form method="GET" id="search_form" action="<%=request.getContextPath()%>/pages/user/list.jsp" >
 	<label>Sort by</label>
 	<select name="orderBy">
 		<option value="name">Name</option>

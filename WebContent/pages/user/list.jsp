@@ -1,4 +1,3 @@
-<%@page import="com.pentalog.nguzun.common.DependencyParams"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1" import="com.pentalog.nguzun.vo.*"
 	import="com.pentalog.nguzun.dao.*"
@@ -7,7 +6,8 @@
 	import="com.pentalog.nguzun.dao.Exception.*"
 	import="org.apache.log4j.Logger" 
 	import="com.pentalog.nguzun.criteria.UserCriteria" 
-	import="org.hibernate.criterion.*" %>
+	import="org.hibernate.criterion.*" 
+	import="com.pentalog.nguzun.common.DependencyParams" %>
 <%!
 	UserDAO userDAO;
 	GroupDAO groupDAO;

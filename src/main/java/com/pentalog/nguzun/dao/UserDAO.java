@@ -12,8 +12,14 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.SimpleExpression;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.pentalog.nguzun.common.DependencyParams;
 import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
@@ -186,22 +192,49 @@ public class UserDAO implements BaseDAO<User> {
 		String direction = dependencyParams.getDirection();
 		if (orderBy != null && direction != null) {
 			Order order = null;
-			if (direction.equals("asc")) {
-				order = Order.asc(orderBy);
-			} else if (direction.equals("desc")) {
-				order =Order.desc(orderBy);
-			}
-			if (order != null) {
+			if (orderBy.equals("group")) {
+				order = getOrder("name", direction);
+				criteria.createCriteria("group")
+        				.addOrder(order);				
+			} else {
+				order = getOrder(orderBy, direction);
 				criteria.addOrder(order);
 			}
-			criteria.createCriteria("group")
-            .addOrder(order);
 		}		
 		
 		return criteria;
 	}
 	
 	public Criteria filter(DependencyParams dependencyParams, Criteria criteria) {
+		String filters = dependencyParams.getFilters();
+		try {
+			JSONObject jsonObj = new JSONObject(filters);
+			
+			Criterion name = Restrictions.eq("name", jsonObj.getString("name"));
+			Criterion login = Restrictions.eq("login", jsonObj.getString("login"));
+			Criterion group = Restrictions.eq("id_group", jsonObj.getString("group"));
+			Disjunction condition = Restrictions.or(name, login, group);
+			
+//			criteria.add(condition);
+			System.out.println("-------GUZUN---------");
+		} catch (JSONException e) {
+			System.out.println("-------NICU---------");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return criteria;
+	}
+	
+	public Order getOrder(String orderBy, String direction) {
+		Order order = null;
+		if (direction.equals("asc")) {
+			order = Order.asc(orderBy);
+		} else if (direction.equals("desc")) {
+			order =Order.desc(orderBy);
+		}
+		
+		return order;
+		
 	}
 }

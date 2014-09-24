@@ -19,6 +19,7 @@
 	<div id="message"></div>
 	<a href="group.jsp">Go to groups</a>
 	<jsp:include page="pages/user/sortForm.jsp"/>
+	<jsp:include page="pages/user/filterForm.jsp"/>
 	<div class="left">
 		<jsp:include page="pages/user/list.jsp"/>
 	</div>

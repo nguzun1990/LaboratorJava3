@@ -229,3 +229,24 @@ function validateGroupForm() {
 	
 	return isValid;
 }
+
+
+function filterUser(url) {
+	var name = $('#search_form #search_name').val(),
+		login = $('#search_form #search_login').val(),
+		group = $('#search_form #search_group').val(),
+		filterObject = {"name": name, "login":login, "group": group};
+	
+	
+	$.ajax({
+	  type: "GET",
+	  url: url,
+	  data: {
+		  'filters': JSON.stringify(filterObject),
+	  }
+	})
+	.done(function(data) {
+		reloadUserList();
+	});
+	
+}
