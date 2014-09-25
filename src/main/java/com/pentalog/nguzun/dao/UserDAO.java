@@ -1,7 +1,7 @@
 package com.pentalog.nguzun.dao;
 
 import java.net.HttpRetryException;
-import java.util.Collection;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import com.pentalog.nguzun.common.DependencyParams;
 import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
+import com.pentalog.nguzun.vo.Group;
 import com.pentalog.nguzun.vo.User;
 
 /**
@@ -81,21 +82,10 @@ public class UserDAO implements BaseDAO<User> {
 		
 		//-----------------------------------------------23-09-2014
 		Criteria criteria = session.createCriteria(User.class);
-		criteria = sort(dependencyParams, criteria);
+//		criteria = sort(dependencyParams, criteria);
 		criteria = filter(dependencyParams, criteria);
-//		cr.addOrder(order);
 		userList = criteria.list();
-		
-//		
-//		Criteria cr = (Criteria) session
-//				.createCriteria(User.class)
-//                .createCriteria("group")
-//                .addOrder(order);
-		
-//		userList = cr.list();
-                
-//		
-		//-----------------------------------------------23-09-2014
+
 		        
 		
 		try {
@@ -187,10 +177,13 @@ public class UserDAO implements BaseDAO<User> {
 		return null;
 	}
 	
-	public Criteria sort(DependencyParams dependencyParams, Criteria criteria) {
-		String orderBy = dependencyParams.getOrderBy();
-		String direction = dependencyParams.getDirection();
-		if (orderBy != null && direction != null) {
+	public Criteria sort(DependencyParams dependencyParams, Criteria criteria) throws ExceptionDAO {
+		String orders = dependencyParams.getOrders();
+		
+		try {
+			JSONObject jsonObj = new JSONObject(orders);
+			String orderBy = jsonObj.getString("orderBy");
+			String direction = jsonObj.getString("direction");
 			Order order = null;
 			if (orderBy.equals("group")) {
 				order = getOrder("name", direction);
@@ -200,27 +193,39 @@ public class UserDAO implements BaseDAO<User> {
 				order = getOrder(orderBy, direction);
 				criteria.addOrder(order);
 			}
-		}		
+			
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+			log.error("Parse JSON Exception - UserDAO");
+			throw new ExceptionDAO("JSON Exception " + e.getMessage(), log);
+		} catch (Exception e) {
+			throw new ExceptionDAO("Exception UserDAO" + e.getMessage(), log);
+		}
+		
 		
 		return criteria;
 	}
 	
-	public Criteria filter(DependencyParams dependencyParams, Criteria criteria) {
+	public Criteria filter(DependencyParams dependencyParams, Criteria criteria) throws ExceptionDAO {
 		String filters = dependencyParams.getFilters();
 		try {
 			JSONObject jsonObj = new JSONObject(filters);
-			
-			Criterion name = Restrictions.eq("name", jsonObj.getString("name"));
-			Criterion login = Restrictions.eq("login", jsonObj.getString("login"));
-			Criterion group = Restrictions.eq("id_group", jsonObj.getString("group"));
-			Disjunction condition = Restrictions.or(name, login, group);
-			
-//			criteria.add(condition);
-			System.out.println("-------GUZUN---------");
+//			if (jsonObj.getString("name")) - to continue:))
+			Criterion criterion = Restrictions.eq("name", jsonObj.getString("name"));
+			criteria.add(criterion);
+			criterion = Restrictions.eq("login", jsonObj.getString("login"));
+			criteria.add(criterion);
+			criterion = Restrictions.eq("id", jsonObj.getInt("group"));
+			criteria.createCriteria("group")
+					.add(criterion);
 		} catch (JSONException e) {
-			System.out.println("-------NICU---------");
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			log.error("Parse JSON Exception - UserDAO");
+			throw new ExceptionDAO("JSON Exception " + e.getMessage(), log);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ExceptionDAO("Exception UserDAO" + e.getMessage(), log);
 		}
 		
 		return criteria;
@@ -234,7 +239,7 @@ public class UserDAO implements BaseDAO<User> {
 			order =Order.desc(orderBy);
 		}
 		
-		return order;
-		
+		return order;		
 	}
+	
 }

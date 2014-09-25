@@ -250,3 +250,22 @@ function filterUser(url) {
 	});
 	
 }
+
+
+function sortUser(url) {
+	var orderBy = $('#order_form #orderBy').val(),
+		direction = $('#order_form #direction').val();
+	orderObject = {"orderBy": orderBy, "direction":direction}
+	
+	$.ajax({
+	  type: "GET",
+	  url: url,
+	  data: {
+		  'orders': JSON.stringify(orderObject),
+	  }
+	})
+	.done(function(data) {
+		reloadUserList();
+	});
+	
+}

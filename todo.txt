@@ -1,3 +1,4 @@
 1. cascade delete;
 2. testele, ceva de genul fixture sau echivalent
 3 class test - after class remove only added elements
+4. remove printStack

@@ -5,14 +5,13 @@ import javax.servlet.http.HttpServletRequest;
 public class DependencyParams {
 	
 	public DependencyParams(HttpServletRequest request) {
-		setDirection(request.getParameter("direction"));
-		setOrderBy(request.getParameter("orderBy"));
-		setFilters(request.getParameter("filters"));
-//		setFilterBy(request.getParameter("filterBy"));
-//		setFilterValue(request.getParameter("filterValue"));		
+		setOrders(request.getParameter("orders"));
+		setFilters(request.getParameter("filters"));		
 	}
 	
 	private String orderBy;
+	
+	private String orders;
 	
 	private String direction;
 	
@@ -61,6 +60,14 @@ public class DependencyParams {
 	public void setFilters(String filters) {
 		this.filters = filters;
 	}	
+	
+	public String getOrders() {
+		return orders;
+	}
+
+	public void setOrders(String orders) {
+		this.orders = orders;
+	}
 	
 	
 }
