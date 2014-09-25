@@ -209,16 +209,30 @@ public class UserDAO implements BaseDAO<User> {
 	
 	public Criteria filter(DependencyParams dependencyParams, Criteria criteria) throws ExceptionDAO {
 		String filters = dependencyParams.getFilters();
+		Criterion criterion = null;
 		try {
-			JSONObject jsonObj = new JSONObject(filters);
-//			if (jsonObj.getString("name")) - to continue:))
-			Criterion criterion = Restrictions.eq("name", jsonObj.getString("name"));
-			criteria.add(criterion);
-			criterion = Restrictions.eq("login", jsonObj.getString("login"));
-			criteria.add(criterion);
-			criterion = Restrictions.eq("id", jsonObj.getInt("group"));
-			criteria.createCriteria("group")
-					.add(criterion);
+			if (filters != null) {
+				JSONObject jsonObj = new JSONObject(filters);
+				String name = jsonObj.getString("name");
+				String login = jsonObj.getString("login");
+				Integer group = jsonObj.getInt("group");
+				if (name != null) {
+					System.out.println(name + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+					criterion = Restrictions.eq("name", name);
+					criteria.add(criterion);
+				}
+				if (login != null) {
+					criterion = Restrictions.eq("login", login);
+					criteria.add(criterion);
+				}
+				if (group != null) {
+					criterion = Restrictions.eq("id", group);
+					criteria.createCriteria("group")
+							.add(criterion);
+				}
+			}
+			
+			
 		} catch (JSONException e) {
 			e.printStackTrace();
 			log.error("Parse JSON Exception - UserDAO");
