@@ -234,9 +234,19 @@ function validateGroupForm() {
 function filterUser(url) {
 	var name = $('#search_form #search_name').val(),
 		login = $('#search_form #search_login').val(),
-		group = $('#search_form #search_group').val(),
-		filterObject = {"name": name, "login":login, "group": group};
+		group = $('#search_form #search_group').val();
+		
 	
+		var filterObject = {};
+		if (name) {
+			filterObject["name"] = name;
+		}
+		if (login) {
+			filterObject["login"] = login;
+		}
+		if (group) {
+			filterObject["group"] = group;
+		}
 	
 	$.ajax({
 	  type: "GET",
@@ -246,7 +256,7 @@ function filterUser(url) {
 	  }
 	})
 	.done(function(data) {
-		reloadUserList();
+		$('.left').html(data);
 	});
 	
 }
@@ -265,7 +275,40 @@ function sortUser(url) {
 	  }
 	})
 	.done(function(data) {
-		reloadUserList();
+		$('.left').html(data);
 	});
 	
+}
+
+function applyFiletersSorters(url) {
+	
+	var name = $('#search_form #search_name').val(),
+		login = $('#search_form #search_login').val(),
+		group = $('#search_form #search_group').val(),
+		filterObject = {};
+		if (name) {
+			filterObject["name"] = name;
+		}
+		if (login) {
+			filterObject["login"] = login;
+		}
+		if (group) {
+			filterObject["group"] = group;
+		}
+	
+	var orderBy = $('#order_form #orderBy').val(),
+		direction = $('#order_form #direction').val(),
+	orderObject = {"orderBy": orderBy, "direction":direction};
+	
+	$.ajax({
+	  type: "GET",
+	  url: url,
+	  data: {
+		  'orders': JSON.stringify(orderObject),
+		  'filters': JSON.stringify(filterObject)
+	  }
+	})
+	.done(function(data) {
+		$('.left').html(data);
+	});
 }

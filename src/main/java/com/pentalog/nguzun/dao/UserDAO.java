@@ -189,10 +189,10 @@ public class UserDAO implements BaseDAO<User> {
 				}
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
 			log.error("Parse JSON Exception - UserDAO");
 			throw new ExceptionDAO("JSON Exception " + e.getMessage(), log);
 		} catch (Exception e) {
+			log.error("Exception UserDAO - sort");
 			throw new ExceptionDAO("Exception UserDAO" + e.getMessage(), log);
 		}
 		
@@ -203,12 +203,15 @@ public class UserDAO implements BaseDAO<User> {
 	public Criteria filter(DependencyParams dependencyParams, Criteria criteria) throws ExceptionDAO {
 		String filters = dependencyParams.getFilters();
 		Criterion criterion = null;
+		String name = null, login = null;
+		Integer group = null;
 		try {
 			if (filters != null) {
-				JSONObject jsonObj = new JSONObject(filters);
-				String name = jsonObj.getString("name");
-				String login = jsonObj.getString("login");
-				Integer group = jsonObj.getInt("group");
+				JSONObject jsonObj = new JSONObject(filters);	
+				name = getFilterValueStr(jsonObj, "name");
+				login = getFilterValueStr(jsonObj, "login");
+				group = getFilterValueInt(jsonObj, "group");
+
 				if (name != null) {
 					criterion = Restrictions.eq("name", name);
 					criteria.add(criterion);
@@ -226,11 +229,10 @@ public class UserDAO implements BaseDAO<User> {
 			
 			
 		} catch (JSONException e) {
-			e.printStackTrace();
 			log.error("Parse JSON Exception - UserDAO");
 			throw new ExceptionDAO("JSON Exception " + e.getMessage(), log);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception UserDAO - filter");
 			throw new ExceptionDAO("Exception UserDAO" + e.getMessage(), log);
 		}
 		
@@ -246,6 +248,24 @@ public class UserDAO implements BaseDAO<User> {
 		}
 		
 		return order;		
+	}
+	
+	public String getFilterValueStr(JSONObject jsonObj, String property) throws JSONException {
+		String value = null;
+		if (jsonObj.has(property)) {
+			value = jsonObj.getString(property);
+		}
+		
+		return value;
+	}
+	
+	public Integer getFilterValueInt(JSONObject jsonObj, String property) throws JSONException {
+		Integer value = null;
+		if (jsonObj.has(property)) {
+			value = jsonObj.getInt(property);
+		}
+		
+		return value;
 	}
 	
 }

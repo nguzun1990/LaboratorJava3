@@ -54,7 +54,6 @@
 		<a href="<%=request.getContextPath() %>/user/export?filetype=xml">Export list to XML File</a>
 		<%
 	} catch (ExceptionDAO e) {
-		e.printStackTrace();
 		log.error("list.jsp: an error dao was occured: " + e.getMessage(), e);
 	} catch (Exception e) {
 		log.error(e.getMessage(), e);
