@@ -1,9 +1,6 @@
 package com.pentalog.nguzun.dao;
 
-import java.net.HttpRetryException;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
@@ -13,17 +10,13 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Disjunction;
-import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.criterion.SimpleExpression;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.pentalog.nguzun.common.DependencyParams;
 import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
-import com.pentalog.nguzun.vo.Group;
 import com.pentalog.nguzun.vo.User;
 
 /**
@@ -79,20 +72,19 @@ public class UserDAO implements BaseDAO<User> {
     public Collection<User> retrive(DependencyParams dependencyParams) throws ExceptionDAO {
     	Session session = factory.openSession();
 		Collection<User> userList;
-		
-		//-----------------------------------------------23-09-2014
-		Criteria criteria = session.createCriteria(User.class);
-//		criteria = sort(dependencyParams, criteria);
-		criteria = filter(dependencyParams, criteria);
-		userList = criteria.list();
-
-		        
-		
 		try {
-//			userList = session.createQuery("FROM User").list();
+			Criteria criteria = session.createCriteria(User.class);
+			if (dependencyParams != null) {
+				criteria = sort(dependencyParams, criteria);
+				criteria = filter(dependencyParams, criteria);
+			}
+			userList = criteria.list();
 		} catch (HibernateException e) {
 			log.error(GET_USER_LIST_ERROR_MSG);
-			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);			
+			throw new ExceptionDAO("SQL Exception " + e.getMessage(), log);	
+		} catch (Exception e) {
+			log.error(GET_USER_LIST_ERROR_MSG);
+			throw new ExceptionDAO("Exception " + e.getMessage(), log);	
 		} finally {
 			session.close();
 		}
@@ -171,30 +163,31 @@ public class UserDAO implements BaseDAO<User> {
 		return userID;
     }
 
-	@Override
+
 	public Collection<User> retrive() throws ExceptionDAO {
-		// TODO Auto-generated method stub
-		return null;
+		Collection<User> list = retrive(null);
+		
+		return list;
 	}
 	
 	public Criteria sort(DependencyParams dependencyParams, Criteria criteria) throws ExceptionDAO {
 		String orders = dependencyParams.getOrders();
+		Order order = null;
 		
 		try {
-			JSONObject jsonObj = new JSONObject(orders);
-			String orderBy = jsonObj.getString("orderBy");
-			String direction = jsonObj.getString("direction");
-			Order order = null;
-			if (orderBy.equals("group")) {
-				order = getOrder("name", direction);
-				criteria.createCriteria("group")
-        				.addOrder(order);				
-			} else {
-				order = getOrder(orderBy, direction);
-				criteria.addOrder(order);
+			if (orders != null) {
+				JSONObject jsonObj = new JSONObject(orders);
+				String orderBy = jsonObj.getString("orderBy");
+				String direction = jsonObj.getString("direction");
+				if (orderBy.equals("group")) {
+					order = getOrder("name", direction);
+					criteria.createCriteria("group")
+	        				.addOrder(order);				
+				} else {
+					order = getOrder(orderBy, direction);
+					criteria.addOrder(order);
+				}
 			}
-			
-			
 		} catch (JSONException e) {
 			e.printStackTrace();
 			log.error("Parse JSON Exception - UserDAO");
@@ -217,7 +210,6 @@ public class UserDAO implements BaseDAO<User> {
 				String login = jsonObj.getString("login");
 				Integer group = jsonObj.getInt("group");
 				if (name != null) {
-					System.out.println(name + "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
 					criterion = Restrictions.eq("name", name);
 					criteria.add(criterion);
 				}

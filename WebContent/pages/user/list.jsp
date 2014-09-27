@@ -18,13 +18,6 @@
 	try{
 		userDAO = DaoFactory.buildObject(UserDAO.class);
 		GroupDAO groupDAO = DaoFactory.buildObject(GroupDAO.class);
-		
-		System.out.println(request.getParameter("sort[property]"));
-		System.out.println(request.getParameter("sort[direction]"));
-		
-		String property = request.getParameter("sort[property]");
-		String direction = request.getParameter("sort[direction]");
-// 		Order order = UserCriteria.getOrder(property, direction);
 		DependencyParams dependencyParams = new DependencyParams(request);
 		Collection<User> userList = userDAO.retrive(dependencyParams);
 		
