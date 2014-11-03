@@ -7,12 +7,13 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Laboratorul 3</title>
-<link rel="stylesheet" href="main.css">
-<script type="text/javascript" src="main.js"></script>
+<link rel="stylesheet" href="resources/css/main.css">
+
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript">
 	reloadUserUrl = "<%= request.getContextPath() %>/pages/user/list.jsp";
 </script>
+<script type="text/javascript" src="resources/js/main.js"></script>
 </head>
 
 <body>
@@ -21,7 +22,6 @@
 	<jsp:include page="pages/user/sortForm.jsp"/>
 	<jsp:include page="pages/user/filterForm.jsp"/>
 	<div class="left">
-		<jsp:include page="pages/user/list.jsp"/>
 	</div>
 	<div class="right">
 		<jsp:include page="pages/user/form.jsp"/>

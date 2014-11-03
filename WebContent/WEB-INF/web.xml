@@ -24,6 +24,14 @@
 		<url-pattern>/user/get</url-pattern>
 	</servlet-mapping>
 	<servlet>
+		<servlet-name>ListUser</servlet-name>
+		<servlet-class>com.pentalog.nguzun.servlets.user.ListServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ListUser</servlet-name>
+		<url-pattern>/user/list</url-pattern>
+	</servlet-mapping>
+	<servlet>
 		<servlet-name>DeleteUser</servlet-name>
 		<servlet-class>com.pentalog.nguzun.servlets.user.DeleteServlet</servlet-class>
 	</servlet>

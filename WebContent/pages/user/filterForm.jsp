@@ -14,7 +14,7 @@
 	Collection<Group> groupList = groupDAO.retrive();
 %>
 <fieldset>
-	<form method="GET" id="search_form" onsubmit="filterUser('<%=request.getContextPath()%>/pages/user/list.jsp'); return false;" >
+	<form method="GET" id="search_form" onsubmit="filterUser('<%=request.getContextPath()%>/user/list'); return false;" >
 		<legend>Search:</legend>
 		<label>Name</label>
 		<input name="search_name" id="search_name"/>
@@ -38,7 +38,7 @@
 		<input type="submit" value="Search">
 		<br>
 	</form>
-<button onclick="applyFiletersSorters('<%=request.getContextPath()%>/pages/user/list.jsp');">Search and orders</button>
+<button onclick="applyFiletersSorters('<%=request.getContextPath()%>/user/list');">Search and orders</button>
 </fieldset>
 
 
