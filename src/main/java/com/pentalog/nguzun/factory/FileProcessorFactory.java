@@ -20,15 +20,7 @@ public class FileProcessorFactory {
 			@SuppressWarnings("unchecked")
 			T newInstance = (T) getInstanceMethod.invoke(null);
 			return newInstance;
-		} catch (IllegalAccessException e) {
-			log.error(e.getMessage(), e);
-		} catch (NoSuchMethodException e) {
-			log.error(e.getMessage(), e);
-		} catch (SecurityException e) {
-			log.error(e.getMessage(), e);
-		} catch (IllegalArgumentException e) {
-			log.error(e.getMessage(), e);
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
 		return null;

@@ -312,3 +312,15 @@ function applyFiletersSorters(url) {
 		$('.left').html(data);
 	});
 }
+
+$(function() {
+	$.ajax({
+	  type: "GET",
+	  url: 'user/list'
+	})
+	.done(function(data) {
+		$('.left').html(data);
+	});
+});
+
+

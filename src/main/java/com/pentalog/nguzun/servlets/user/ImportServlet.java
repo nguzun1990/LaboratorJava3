@@ -23,6 +23,7 @@ import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
 import com.pentalog.nguzun.factory.FileProcessorFactory;
 import com.pentalog.nguzun.factory.DaoFactory;
 import com.pentalog.nguzun.file.BaseFileProcessor;
+import com.pentalog.nguzun.file.UserImportService;
 import com.pentalog.nguzun.file.csv.UserCsvProcessor;
 import com.pentalog.nguzun.file.xml.UserXmlProcessor;
 import com.pentalog.nguzun.vo.User;
@@ -60,11 +61,7 @@ public class ImportServlet extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)  {
 		// Check that we have a file upload request
 		isMultipart = ServletFileUpload.isMultipartContent(request);
 		if (!isMultipart) {
@@ -79,43 +76,20 @@ public class ImportServlet extends HttpServlet {
 		ServletFileUpload upload = new ServletFileUpload(factory);
 		// maximum file size to be uploaded.
 		upload.setSizeMax(maxFileSize);
-		try {
-			BaseFileProcessor<User> fileProcessor = null;	
+		try {	
 			// Parse the request to get file items.
-			List<?> fileItems = upload.parseRequest(request);
+			List<FileItem> fileItems = upload.parseRequest(request);
 			// Process the uploaded file items
-			Iterator<?> iterator = fileItems.iterator();
-			while (iterator.hasNext()) {
-				FileItem fileItem = (FileItem) iterator.next();
-				if (!fileItem.isFormField()) {
-						file = new File(fileItem.getName()) ;
-			            fileItem.write( file ) ;
-						String ext = FilenameUtils.getExtension(file.getName());						
-						if (ext.equals("csv")) {
-							fileProcessor = FileProcessorFactory .buildObject(UserCsvProcessor.class);
-						}
-						if (ext.equals("xml")) {
-							fileProcessor = FileProcessorFactory .buildObject(UserXmlProcessor.class);
-						}
-						if (fileProcessor != null) {
-							Collection<User> list = fileProcessor.readEntitiesFromFile(file.getName());
-							UserDAO dao = DaoFactory.buildObject(UserDAO.class);
-							for (User user : list) {
-								if (user.getId() == 0) {
-									dao.create(user);
-								} else {
-									dao.update(user);
-								}
-							}
-						}	
-				}
-			}
-		} catch (ExceptionDAO e) {
-			log.error("Import servlet doPost: an error dao was occured: " + e.getMessage(), e);
+			UserImportService.importFile(fileItems);
 		} catch (Exception e) {
 			log.error("Import servlet doPost: "  + e.getMessage(), e);
 		}
-		response.sendRedirect(request.getContextPath());
+		try {
+			
+			response.sendRedirect(request.getContextPath());
+		} catch (Exception e) {
+			log.error("Input-Output exception import servlet: "  + e.getMessage(), e);
+		}
 	}
 
 }
