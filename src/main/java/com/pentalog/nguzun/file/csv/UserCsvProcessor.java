@@ -65,16 +65,11 @@ public class UserCsvProcessor extends BaseCsvProcessor<User> {
     @Override
     public String createStringForEntity(User user, String cvsSplitBy) {
         StringBuilder strBuilder = new StringBuilder("");
-        strBuilder.append(user.getId())
-                .append(cvsSplitBy)
-                .append(user.getName())
-                .append(cvsSplitBy)
-                .append(user.getLogin())
-                .append(cvsSplitBy)
-                .append(user.getPassword())
-                .append(cvsSplitBy)
-                .append(user.getGroup().getId())
-                .append('\n');
+        strBuilder.append(appendWithSplitter(user.getId(), cvsSplitBy));
+        strBuilder.append(appendWithSplitter(user.getName(), cvsSplitBy));
+        strBuilder.append(appendWithSplitter(user.getLogin(), cvsSplitBy));
+        strBuilder.append(appendWithSplitter(user.getPassword(), cvsSplitBy));
+        strBuilder.append(user.getGroup().getId()).append('\n');
 
         return strBuilder.toString();
     }

@@ -42,9 +42,9 @@ public class RoleCsvProcessor extends BaseCsvProcessor<Role> {
 	@Override
 	public String createStringForEntity(Role role, String cvsSplitBy) {
 		StringBuilder strBuilder = new StringBuilder("");
-		strBuilder.append(role.getId()).append(cvsSplitBy)
-				.append(role.getName()).append(cvsSplitBy)
-				.append(role.getDescription()).append('\n');
+		strBuilder.append(appendWithSplitter(role.getId(), cvsSplitBy));
+		strBuilder.append(appendWithSplitter(role.getName(), cvsSplitBy));
+		strBuilder.append(role.getDescription()).append('\n');
 
 		return strBuilder.toString();
 	}

@@ -91,6 +91,12 @@ public abstract class BaseCsvProcessor<T extends BaseValueObject> implements Bas
         }
     }
 
+    protected String appendWithSplitter(Object obj, String spliter) {
+    	StringBuilder strBuilder = new StringBuilder("");
+		strBuilder.append(obj.toString()).append(spliter);
+		
+		return strBuilder.toString();
+    }
 
     abstract public T createEntity(String[] record);
 

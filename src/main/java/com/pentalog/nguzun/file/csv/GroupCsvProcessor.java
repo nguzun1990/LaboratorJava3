@@ -60,11 +60,12 @@ public class GroupCsvProcessor extends BaseCsvProcessor<Group> {
 
 	@Override
 	public String createStringForEntity(Group group, String cvsSplitBy) {
+				
 		StringBuilder strBuilder = new StringBuilder("");
-		strBuilder.append(group.getId()).append(cvsSplitBy)
-				.append(group.getName()).append(cvsSplitBy)
-				.append(group.getDescription()).append(cvsSplitBy)
-				.append(group.getRole().getId()).append('\n');
+		strBuilder.append(appendWithSplitter(group.getId(), cvsSplitBy));
+		strBuilder.append(appendWithSplitter(group.getName(), cvsSplitBy));
+		strBuilder.append(appendWithSplitter(group.getDescription(), cvsSplitBy));
+		strBuilder.append(group.getRole().getId()).append('\n');
 
 		return strBuilder.toString();
 	}
