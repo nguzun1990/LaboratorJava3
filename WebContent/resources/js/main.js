@@ -321,6 +321,14 @@ $(function() {
 	.done(function(data) {
 		$('.left').html(data);
 	});
+	
+	$.ajax({
+	  type: "GET",
+	  url: 'user/form'
+	})
+	.done(function(data) {
+		$('.right').html(data);
+	});
 });
 
 

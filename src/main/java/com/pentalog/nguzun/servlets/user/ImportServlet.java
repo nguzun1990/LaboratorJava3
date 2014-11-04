@@ -2,12 +2,10 @@ package com.pentalog.nguzun.servlets.user;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
+import java.io.PrintWriter;
 import java.util.List;
 
 import javax.servlet.ServletException;
-//import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,18 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
-import com.pentalog.nguzun.dao.UserDAO;
-import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
-import com.pentalog.nguzun.factory.FileProcessorFactory;
-import com.pentalog.nguzun.factory.DaoFactory;
-import com.pentalog.nguzun.file.BaseFileProcessor;
-import com.pentalog.nguzun.file.UserImportService;
-import com.pentalog.nguzun.file.csv.UserCsvProcessor;
-import com.pentalog.nguzun.file.xml.UserXmlProcessor;
-import com.pentalog.nguzun.vo.User;
+import com.pentalog.nguzun.file.UserFileService;
 
 /**
  * Servlet implementation class import
@@ -38,7 +28,6 @@ public class ImportServlet extends HttpServlet {
 	private boolean isMultipart;
 	private int maxFileSize = 50 * 1024;
 	private int maxMemSize = 4 * 1024;
-	private File file;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -62,6 +51,10 @@ public class ImportServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)  {
+		response.setContentType("application/json");
+		JSONObject result = new JSONObject();
+		PrintWriter out = null;
+		
 		// Check that we have a file upload request
 		isMultipart = ServletFileUpload.isMultipartContent(request);
 		if (!isMultipart) {
@@ -77,19 +70,18 @@ public class ImportServlet extends HttpServlet {
 		// maximum file size to be uploaded.
 		upload.setSizeMax(maxFileSize);
 		try {	
+			out = response.getWriter();
 			// Parse the request to get file items.
 			List<FileItem> fileItems = upload.parseRequest(request);
 			// Process the uploaded file items
-			UserImportService.importFile(fileItems);
+			UserFileService.importFile(fileItems);
+			result.put("success", true);
+			out.println(result.toString());
 		} catch (Exception e) {
+			out.println("{'success':false}");
 			log.error("Import servlet doPost: "  + e.getMessage(), e);
 		}
-		try {
-			
-			response.sendRedirect(request.getContextPath());
-		} catch (Exception e) {
-			log.error("Input-Output exception import servlet: "  + e.getMessage(), e);
-		}
+		out.close();
 	}
 
 }

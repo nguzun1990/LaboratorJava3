@@ -55,6 +55,8 @@ public class UpdateServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Boolean success = false;
 		User user = null;
+		response.setContentType("application/json");
+		PrintWriter out = response.getWriter();
 		String name = request.getParameter("name");
 		String login = request.getParameter("login");
 		String password = request.getParameter("password");
@@ -88,15 +90,12 @@ public class UpdateServlet extends HttpServlet {
 				}		
 			}
 			result.put("success", success);
-		} catch (ExceptionDAO e) {
-			log.error("Update Servlet Exception DAO: " + e.getMessage(), e);
+			out.println(result.toString());
 		} catch (Exception e) {
+			out.println("{'success':false}");
 			log.error("Update Servlet General Exception: " + e.getMessage(), e);
 		}
-		
-		response.setContentType("application/json");
-		PrintWriter out = response.getWriter();
-		out.println(result.toString());
+				
         out.close();
 	}
 

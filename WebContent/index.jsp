@@ -14,6 +14,7 @@
 	reloadUserUrl = "<%= request.getContextPath() %>/pages/user/list.jsp";
 </script>
 <script type="text/javascript" src="resources/js/main.js"></script>
+<script type="text/javascript" src="resources/js/upload.js"></script>
 </head>
 
 <body>

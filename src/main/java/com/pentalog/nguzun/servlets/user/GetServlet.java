@@ -64,14 +64,14 @@ public class GetServlet extends HttpServlet {
 			} else {
 				result.put("success", false);
 			}		
+			out.println(result.toString());
 		} catch (ExceptionDAO e) {
+			out.println("{'success':false}");
 			log.error("Get Servlet Exception DAO: " + e.getMessage(), e);
 		} catch (JSONException e) {
+			out.println("{'success':false}");
 			log.error("Get Servlet  JSON Exception: " + e.getMessage(), e);
-		} catch (Exception e) {
-			log.error("Get Servlet General Exception: " + e.getMessage(), e);
-		}
-		out.println(result.toString());
+		}		
 		out.close();
 	}
 

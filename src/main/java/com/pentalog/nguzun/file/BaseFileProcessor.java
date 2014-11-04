@@ -12,9 +12,9 @@ import com.pentalog.nguzun.vo.Group;
  */
 public interface BaseFileProcessor<T extends BaseValueObject>{
 	
-    abstract public Collection<T> readEntitiesFromFile(String pathFile);
+    Collection<T> readEntitiesFromFile(String pathFile) throws Exception;
 
 
-    abstract public void writeEntitiesToFile(Collection<T> list, String pathFile) throws Exception;
+    void writeEntitiesToFile(Collection<T> list, String pathFile) throws Exception;
 
 }

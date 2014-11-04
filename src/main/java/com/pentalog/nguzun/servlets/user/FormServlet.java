@@ -2,7 +2,9 @@ package com.pentalog.nguzun.servlets.user;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 //import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -10,24 +12,30 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.pentalog.nguzun.common.DependencyParams;
+import com.pentalog.nguzun.dao.GroupDAO;
 import com.pentalog.nguzun.dao.UserDAO;
+import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
 import com.pentalog.nguzun.factory.DaoFactory;
+import com.pentalog.nguzun.vo.Group;
+import com.pentalog.nguzun.vo.User;
 
 /**
- * Servlet implementation class delete
+ * Servlet implementation class get
  */
-public class DeleteServlet extends HttpServlet {
+public class FormServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private Logger log = Logger.getLogger(DeleteServlet.class);
+	private Logger log = Logger.getLogger(FormServlet.class);
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public DeleteServlet() {
+    public FormServlet() {
         super();
     }
     
@@ -43,30 +51,26 @@ public class DeleteServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		Logger log = Logger.getLogger(UserDAO.class);
+		GroupDAO groupDAO = DaoFactory.buildObject(GroupDAO.class);
+		Collection<Group> groupList;
+		try {
+			groupList = groupDAO.retrive();
+			request.setAttribute("groupList", groupList);
+			request.setAttribute("success", true);
+		} catch (ExceptionDAO e) {
+			request.setAttribute("success", false);
+			log.error("List Servlet Exception: " + e.getMessage(), e);
+		}
+		
+		RequestDispatcher rd = getServletContext().getRequestDispatcher("/pages/user/form.jsp");
+		rd.forward(request, response);
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("application/json");
-		PrintWriter out = response.getWriter();
-		Boolean success = false;
-		int id = 0;
-		UserDAO dao = DaoFactory.buildObject(UserDAO.class);
-		JSONObject result = new JSONObject();
-		try {
-			if (!request.getParameter("id").equals("")) {
-				id = Integer.parseInt(request.getParameter("id"));
-				success = dao.delete(id);	
-			}
-			result.put("success", success);
-			out.println(result.toString());
-		} catch (Exception e) {
-			out.println("{'success':false}");
-			log.error("Delete Servlet Exception: " + e.getMessage(), e);
-		}
-        out.close();
 	}
 
 }

@@ -4,7 +4,20 @@
  */
 package com.pentalog.nguzun.file.xml;
 
+import java.io.File;
+import java.util.Collection;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -14,6 +27,7 @@ import com.pentalog.nguzun.factory.DaoFactory;
 import com.pentalog.nguzun.file.csv.BaseCsvProcessor;
 import com.pentalog.nguzun.vo.Group;
 import com.pentalog.nguzun.vo.Role;
+import com.pentalog.nguzun.vo.User;
 
 /**
  *
@@ -67,38 +81,29 @@ public class GroupXmlProcessor extends BaseXmlProcessor<Group> {
 	}
 	
 	
+	@Override
+    protected Element createXmlNode(Group group, Document doc) {
+    		Element userElement = doc.createElement("group");
+			
+			Element id = doc.createElement("id");
+			id.appendChild(doc.createTextNode(String.valueOf(group.getId())));
+			userElement.appendChild(id);
+	 
+			Element name = doc.createElement("name");
+			name.appendChild(doc.createTextNode(group.getName()));
+			userElement.appendChild(name);
+	 
+			Element login = doc.createElement("description");
+			login.appendChild(doc.createTextNode(group.getDescription()));
+			userElement.appendChild(login);
 
-//	@Override
-//    public String createStringForEntity(Group group) {
-//        StringBuilder strBuilder = new StringBuilder("");
-//        strBuilder.append("<group>")
-//			.append("\n\t<id>" + group.getId() + "</id>")
-//	        .append("\n\t<name>" + group.getName() + "</name>")
-//	        .append("\n\t<description>" + group.getDescription() + "</description>")
-//	        .append("\n\t<roleId>" + group.getRole().getId() + "</roleId>")
-//	        .append("\n</group>")
-//	        .append('\n');
-//
-//        return strBuilder.toString();
-//    }
-//    
-//    @Override
-//	public String getHeader() {
-//    	StringBuilder strBuilder = new StringBuilder();
-//    	strBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-//				.append('\n')
-//    			.append("<groups>")
-//    			.append('\n');	        
-//	        
-//    	return strBuilder.toString();
-//	}
-//
-//	@Override
-//	public String getFooter() {
-//		StringBuilder strBuilder = new StringBuilder("</groups>");
-//    	
-//    	return strBuilder.toString();
-//	}
+			Element groupId = doc.createElement("roleId");
+			groupId.appendChild(doc.createTextNode(String.valueOf(group.getRole().getId())));
+			userElement.appendChild(groupId);
+			
+			return userElement;
+    }
+
 
 	@Override
 	public String getTagName() {

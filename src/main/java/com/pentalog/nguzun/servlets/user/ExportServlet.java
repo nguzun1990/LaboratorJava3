@@ -19,10 +19,8 @@ import org.apache.log4j.Logger;
 import com.pentalog.nguzun.dao.UserDAO;
 import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
 import com.pentalog.nguzun.factory.DaoFactory;
-import com.pentalog.nguzun.factory.FileProcessorFactory;
 import com.pentalog.nguzun.file.BaseFileProcessor;
-import com.pentalog.nguzun.file.csv.UserCsvProcessor;
-import com.pentalog.nguzun.file.xml.UserXmlProcessor;
+import com.pentalog.nguzun.file.UserFileService;
 import com.pentalog.nguzun.vo.User;
 
 /**
@@ -63,14 +61,9 @@ public class ExportServlet extends HttpServlet {
 			Collection<User> list = dao.retrive();
 			
 			if (fileType != null) {
-				if (fileType.equals("csv")) {
-					fileProcessor = FileProcessorFactory.buildObject(UserCsvProcessor.class);
-					filePath = getServletContext().getRealPath("") + File.separator + "users.csv";
-				}
-				if (fileType.equals("xml")) {
-					fileProcessor = FileProcessorFactory.buildObject(UserXmlProcessor.class);
-					filePath = getServletContext().getRealPath("") + File.separator + "users.xml";					
-				}
+				String fileName = "users." + fileType;
+				fileProcessor = UserFileService.getFileProcessor(fileName);
+				filePath = getServletContext().getRealPath("") + File.separator + fileName;
 				if (fileProcessor != null) {
 					fileProcessor.writeEntitiesToFile(list, filePath);
 				}
@@ -118,5 +111,6 @@ public class ExportServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	}
+	
 
 }

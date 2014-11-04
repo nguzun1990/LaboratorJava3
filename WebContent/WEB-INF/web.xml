@@ -32,6 +32,14 @@
 		<url-pattern>/user/list</url-pattern>
 	</servlet-mapping>
 	<servlet>
+		<servlet-name>FormUser</servlet-name>
+		<servlet-class>com.pentalog.nguzun.servlets.user.FormServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>FormUser</servlet-name>
+		<url-pattern>/user/form</url-pattern>
+	</servlet-mapping>
+	<servlet>
 		<servlet-name>DeleteUser</servlet-name>
 		<servlet-class>com.pentalog.nguzun.servlets.user.DeleteServlet</servlet-class>
 	</servlet>
@@ -79,21 +87,5 @@
 	<servlet-mapping>
 		<servlet-name>DeleteGroup</servlet-name>
 		<url-pattern>/group/delete</url-pattern>
-	</servlet-mapping>
-	<servlet>
-		<servlet-name>ExportGroup</servlet-name>
-		<servlet-class>com.pentalog.nguzun.servlets.group.ExportServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>ExportGroup</servlet-name>
-		<url-pattern>/group/export</url-pattern>
-	</servlet-mapping>
-	<servlet>
-		<servlet-name>ImportGroup</servlet-name>
-		<servlet-class>com.pentalog.nguzun.servlets.group.ImportServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>ImportGroup</servlet-name>
-		<url-pattern>/group/import</url-pattern>
 	</servlet-mapping>
 </web-app>

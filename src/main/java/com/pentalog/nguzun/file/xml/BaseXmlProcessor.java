@@ -1,7 +1,6 @@
 package com.pentalog.nguzun.file.xml;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,9 +8,13 @@ import java.util.Collection;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,23 +23,6 @@ import org.xml.sax.SAXException;
 
 import com.pentalog.nguzun.file.BaseFileProcessor;
 import com.pentalog.nguzun.vo.BaseValueObject;
-
-import java.io.File;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
- 
-
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 
 /**
@@ -53,21 +39,14 @@ public abstract class BaseXmlProcessor<T extends BaseValueObject> implements Bas
 		return result;
 	}
 	
-	protected int getIntProperty(String key, Element eElement) {
-		int result  = 0;
-		try {
-			result =  Integer.parseInt(eElement.getElementsByTagName(key).item(0).getTextContent());
-		} catch (NumberFormatException e) {
-			result = 0;
-		} catch (NullPointerException e) {
-			result = 0;
-		}
+	protected int getIntProperty(String key, Element eElement) throws NumberFormatException {
+		int result =  Integer.parseInt(eElement.getElementsByTagName(key).item(0).getTextContent());
 		
 		return result;
 	}
 
 	@Override
-	public Collection<T> readEntitiesFromFile(String pathFile) {		
+	public Collection<T> readEntitiesFromFile(String pathFile) throws Exception {		
 		Collection<T> list = new ArrayList<T>();
         File fXmlFile = new File(pathFile);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -85,94 +64,46 @@ public abstract class BaseXmlProcessor<T extends BaseValueObject> implements Bas
                     list.add(entity);
                 }
 			}
-		} catch (ParserConfigurationException e) {
-			log.error(e.getMessage(), e);
-		} catch (IOException e) {
-			log.error(e.getMessage(), e);
-		}catch (SAXException e) {
-			log.error(e.getMessage(), e);
+		} catch (SAXException e) {
+			throw new Exception("BaseXmlProcessor.readEntityFromFile exception " + e.getMessage());
 		}
 		
 		return list;
 	}
 
 	@Override
-	public void writeEntitiesToFile(Collection<T> list, String pathFile) throws Exception {
+	public void writeEntitiesToFile(Collection<T> list, String pathFile) throws TransformerException, ParserConfigurationException  {
 		
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
- 
-		// root elements
-		Document doc = docBuilder.newDocument();
-		Element rootElement = doc.createElement("Users");
-		doc.appendChild(rootElement);
+ 		Document doc = createXmlContent(list, docBuilder);
 		
-		for (T entity : list) {
-			Element staff = doc.createElement("User");
-			rootElement.appendChild(staff);
-			
-			// firstname elements
-			Element firstname = doc.createElement("firstname");
-			firstname.appendChild(doc.createTextNode("yong"));
-			staff.appendChild(firstname);
-	 
-			// lastname elements
-			Element lastname = doc.createElement("lastname");
-			lastname.appendChild(doc.createTextNode("mook kim"));
-			staff.appendChild(lastname);
-	 
-			// nickname elements
-			Element nickname = doc.createElement("nickname");
-			nickname.appendChild(doc.createTextNode("mkyong"));
-			staff.appendChild(nickname);
-	 
-			// salary elements
-			Element salary = doc.createElement("salary");
-			salary.appendChild(doc.createTextNode("100000"));
-			staff.appendChild(salary);
-			
-			
-	    }
- 
- 
 		// write the content into xml file
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
-		StreamResult result = new StreamResult(new File("nicufile.xml"));
- 
-		// Output to console for testing
-		// StreamResult result = new StreamResult(System.out);
- 
-		transformer.transform(source, result);
- 
-		System.out.println("File saved!");
-		
-//        try {
-//            FileWriter writer = new FileWriter(pathFile);
-//            String str = null;
-//            writer.append(getHeader());
-//            for (T entity : list) {
-//                str = this.createStringForEntity(entity);
-//                writer.append(str);
-//            }
-//            writer.append(getFooter());
-//            writer.flush();
-//            writer.close();
-//        } catch (IOException e) {
-//        	log.error("writeEntitiesToFile: an error BaseXmlProcessor was occured: " + e.getMessage(), e);
-//        }
-    }
-	
-	
-	abstract public T createEntity(Node node);
+		StreamResult result = new StreamResult(new File(pathFile));
 
-//    abstract public String createStringForEntity(T entity);
-//    
-//    abstract public String getHeader();
-//    
-//    abstract public String getFooter();
-//    
+		transformer.transform(source, result);
+
+    }
+ 
+    protected Document createXmlContent(Collection<T> list, DocumentBuilder docBuilder) {
+    	Document doc = docBuilder.newDocument();
+		Element rootElement = doc.createElement("results");
+		doc.appendChild(rootElement);
+		
+		for (T entity : list) {
+			Element userElement = createXmlNode(entity, doc);
+			rootElement.appendChild(userElement);
+	    }
+		
+		return doc;
+    }
+    
+    
+	abstract protected Element createXmlNode(T entity, Document doc);
+	abstract public T createEntity(Node node);
     abstract public String getTagName();
 
 }

@@ -1,20 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-	pageEncoding="ISO-8859-1" import="com.pentalog.nguzun.vo.*"
-	import="com.pentalog.nguzun.dao.*"
-	import="com.pentalog.nguzun.factory.*" 
-	import="java.util.*"
-	import="com.pentalog.nguzun.dao.Exception.*"
-	import="org.apache.log4j.Logger" %>
+	pageEncoding="ISO-8859-1"  %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<%!
-	GroupDAO groupDAO;
-	Logger log = Logger.getLogger(UserDAO.class);
-%>
-<%
-	try {
-		GroupDAO groupDAO = DaoFactory.buildObject(GroupDAO.class);
-		Collection<Group> groupList = groupDAO.retrive();
-		%>
 		<form action="" id="form" onsubmit="saveUser('<%=request.getContextPath()%>/user/update'); return false;">
 			<input type="hidden" name="id" id="id">
 			<label class="form_label">Name</label>
@@ -25,27 +12,16 @@
 			<input type="password" name="password" id="password"><br>
 			<label class="form_label">Group</label>
 			<select name="group_id" id="group_id">
-				<%for(Group group : groupList) {
-				%>
-				<option value="<%=group.getId() %>" ><%= group.getName() %></option>
-				<% 
-				}
-				%>
+				<c:forEach items="${requestScope.groupList}" var="group">
+					<option value="<c:out value="${group.getId()}"></c:out>" ><c:out value="${group.getName()}"></c:out></option>
+				</c:forEach>
 			</select>
 			<br>
 			<input type="submit" value="Save">
 		</form>
+		<div id="output"></div>
 		<form method="post" action="<%=request.getContextPath()%>/user/import" id="form-file" enctype="multipart/form-data">
-			<input type="file" name="import_file">
+			<input type="file" name="import_file" id="import_file">
 			<br/>
 			<input type="submit" value="Import">
 		</form>
-		<%
-	} catch (ExceptionDAO e) {
-		log.error("get: an error dao was occured: " + e.getMessage(), e);
-		%><span class="error">An database error occured<span/><%
-	} catch (Exception e) {
-		log.error(e.getMessage(), e);
-		%><span class="error">An server error occured<span/><%
-	}
-%>

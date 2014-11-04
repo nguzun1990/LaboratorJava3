@@ -52,14 +52,14 @@ public class ListServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Logger log = Logger.getLogger(UserDAO.class);
 		UserDAO userDAO = DaoFactory.buildObject(UserDAO.class);
-//		GroupDAO groupDAO = DaoFactory.buildObject(GroupDAO.class);
 		DependencyParams dependencyParams = new DependencyParams(request);
 			try {
 				Collection<User> userList = userDAO.retrive(dependencyParams);
 				request.setAttribute("userList", userList);
+				request.setAttribute("success", true);
 			} catch (ExceptionDAO e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				request.setAttribute("success", false);
+				log.error("List Servlet Exception: " + e.getMessage(), e);
 			}
 		RequestDispatcher rd = getServletContext().getRequestDispatcher("/pages/user/list.jsp");
 		rd.forward(request, response);
