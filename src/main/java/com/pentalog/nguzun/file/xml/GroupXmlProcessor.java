@@ -68,37 +68,37 @@ public class GroupXmlProcessor extends BaseXmlProcessor<Group> {
 	
 	
 
-	@Override
-    public String createStringForEntity(Group group) {
-        StringBuilder strBuilder = new StringBuilder("");
-        strBuilder.append("<group>")
-			.append("\n\t<id>" + group.getId() + "</id>")
-	        .append("\n\t<name>" + group.getName() + "</name>")
-	        .append("\n\t<description>" + group.getDescription() + "</description>")
-	        .append("\n\t<roleId>" + group.getRole().getId() + "</roleId>")
-	        .append("\n</group>")
-	        .append('\n');
-
-        return strBuilder.toString();
-    }
-    
-    @Override
-	public String getHeader() {
-    	StringBuilder strBuilder = new StringBuilder();
-    	strBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
-				.append('\n')
-    			.append("<groups>")
-    			.append('\n');	        
-	        
-    	return strBuilder.toString();
-	}
-
-	@Override
-	public String getFooter() {
-		StringBuilder strBuilder = new StringBuilder("</groups>");
-    	
-    	return strBuilder.toString();
-	}
+//	@Override
+//    public String createStringForEntity(Group group) {
+//        StringBuilder strBuilder = new StringBuilder("");
+//        strBuilder.append("<group>")
+//			.append("\n\t<id>" + group.getId() + "</id>")
+//	        .append("\n\t<name>" + group.getName() + "</name>")
+//	        .append("\n\t<description>" + group.getDescription() + "</description>")
+//	        .append("\n\t<roleId>" + group.getRole().getId() + "</roleId>")
+//	        .append("\n</group>")
+//	        .append('\n');
+//
+//        return strBuilder.toString();
+//    }
+//    
+//    @Override
+//	public String getHeader() {
+//    	StringBuilder strBuilder = new StringBuilder();
+//    	strBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+//				.append('\n')
+//    			.append("<groups>")
+//    			.append('\n');	        
+//	        
+//    	return strBuilder.toString();
+//	}
+//
+//	@Override
+//	public String getFooter() {
+//		StringBuilder strBuilder = new StringBuilder("</groups>");
+//    	
+//    	return strBuilder.toString();
+//	}
 
 	@Override
 	public String getTagName() {
