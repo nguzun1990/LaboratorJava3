@@ -4,17 +4,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
-//import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 import com.pentalog.nguzun.dao.GroupDAO;
 import com.pentalog.nguzun.dao.UserDAO;
-import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
 import com.pentalog.nguzun.factory.DaoFactory;
 import com.pentalog.nguzun.vo.Group;
 import com.pentalog.nguzun.vo.User;
@@ -90,12 +89,12 @@ public class UpdateServlet extends HttpServlet {
 				}		
 			}
 			result.put("success", success);
-			out.println(result.toString());
+			
 		} catch (Exception e) {
-			out.println("{'success':false}");
+			result.put("success", false);
 			log.error("Update Servlet General Exception: " + e.getMessage(), e);
 		}
-				
+		out.println(result.toString());
         out.close();
 	}
 

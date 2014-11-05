@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
-//import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.pentalog.nguzun.dao.UserDAO;
 import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
@@ -64,14 +63,12 @@ public class GetServlet extends HttpServlet {
 			} else {
 				result.put("success", false);
 			}		
-			out.println(result.toString());
+			
 		} catch (ExceptionDAO e) {
-			out.println("{'success':false}");
+			result.put("success", false);
 			log.error("Get Servlet Exception DAO: " + e.getMessage(), e);
-		} catch (JSONException e) {
-			out.println("{'success':false}");
-			log.error("Get Servlet  JSON Exception: " + e.getMessage(), e);
-		}		
+		} 		
+		out.println(result.toString());
 		out.close();
 	}
 

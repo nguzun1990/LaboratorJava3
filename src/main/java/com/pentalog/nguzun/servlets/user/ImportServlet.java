@@ -10,11 +10,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 import com.pentalog.nguzun.file.UserFileService;
 
@@ -75,12 +76,12 @@ public class ImportServlet extends HttpServlet {
 			List<FileItem> fileItems = upload.parseRequest(request);
 			// Process the uploaded file items
 			UserFileService.importFile(fileItems);
-			result.put("success", true);
-			out.println(result.toString());
+			result.put("success", true);			
 		} catch (Exception e) {
-			out.println("{'success':false}");
+			result.put("success", true);
 			log.error("Import servlet doPost: "  + e.getMessage(), e);
 		}
+		out.println(result.toString());
 		out.close();
 	}
 
