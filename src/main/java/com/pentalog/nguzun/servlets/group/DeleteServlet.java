@@ -4,16 +4,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
-//import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 
 import com.pentalog.nguzun.dao.GroupDAO;
-import com.pentalog.nguzun.dao.Exception.ExceptionDAO;
 import com.pentalog.nguzun.factory.DaoFactory;
 
 /**
@@ -60,9 +59,8 @@ public class DeleteServlet extends HttpServlet {
 				success = dao.delete(id);	
 			}
 			result.put("success", success);
-		} catch (ExceptionDAO e) {
-			log.error("Update Servlet Exception DAO: " + e.getMessage(), e);
 		} catch (Exception e) {
+			result.put("success", false);
 			log.error("Update Servlet General Exception: " + e.getMessage(), e);
 		}
 		

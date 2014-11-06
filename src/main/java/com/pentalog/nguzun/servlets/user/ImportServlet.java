@@ -10,11 +10,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSONObject;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.pentalog.nguzun.file.UserFileService;
@@ -51,10 +50,9 @@ public class ImportServlet extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 	}
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)  {
-		response.setContentType("application/json");
-		JSONObject result = new JSONObject();
-		PrintWriter out = null;
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException  {
+		response.setContentType("text/html");
+		String responseHtmlBody = StringUtils.EMPTY;
 		
 		// Check that we have a file upload request
 		isMultipart = ServletFileUpload.isMultipartContent(request);
@@ -71,18 +69,55 @@ public class ImportServlet extends HttpServlet {
 		// maximum file size to be uploaded.
 		upload.setSizeMax(maxFileSize);
 		try {	
-			out = response.getWriter();
 			// Parse the request to get file items.
 			List<FileItem> fileItems = upload.parseRequest(request);
 			// Process the uploaded file items
 			UserFileService.importFile(fileItems);
-			result.put("success", true);			
 		} catch (Exception e) {
-			result.put("success", true);
+			responseHtmlBody = "window.parent.alert('An internal error was occured!');";
 			log.error("Import servlet doPost: "  + e.getMessage(), e);
 		}
-		out.println(result.toString());
-		out.close();
-	}
+		
+		if (StringUtils.isNotEmpty(responseHtmlBody)) {
+			StringBuilder outStringBuilder = new StringBuilder();
+			outStringBuilder.append(getResponseHtmlStart());
+			outStringBuilder.append(responseHtmlBody);
+			outStringBuilder.append(getResponseHtmlEnd());
 
+			PrintWriter out = response.getWriter();
+			out.println(outStringBuilder.toString());
+			out.close();
+		}
+	}
+	
+    /**
+     * Returns the starting section of a HTML document containing doctype, head,
+     * and body/script start.
+     * 
+     * @return the start of the html
+     */
+    private String getResponseHtmlStart() {
+        StringBuilder html = new StringBuilder();
+        html.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">");
+        html.append("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
+        html.append("<head>");
+        html.append("<title>BPMS import file upload response</title>");
+        html.append("</head>");
+        html.append("<body>");
+        html.append("<script type=\"text/javascript\">");
+        return html.toString();
+    }
+    
+	/**
+     * Returns the ending section of a HTML document.
+     * 
+     * @return the end of the html
+     */
+    private String getResponseHtmlEnd() {
+        StringBuilder html = new StringBuilder();
+        html.append("</script>");
+        html.append("</body>");
+        html.append("</html>");
+        return html.toString();
+    }
 }
